@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+@import "tailwindcss";
+
+
+/* ── Boletyx Design Tokens ─────────────────────────────── */
+@theme {
+  /* Brand palette */
+  --color-primary:      #203A50;
+  --color-primary-dark: #152938;
+  --color-steel:        #203A55;
+  --color-mint:         #CEEEC3;
+  --color-mint-dark:    #96d096;
+  --color-gray-soft:    #C0CAC2;
+  --color-gray-mid:     #203A20;
+  --color-beige:        #E0CEB3;
+  --color-cream:        #F5F2EA;
+
+  /* UI surface palette */
+  --color-surface:      #F4F7FA;
+  --color-surface-2:    #EBF0F5;
+  --color-card:         #ffffff;
+  --color-border:       #DDE4ED;
+  --color-border-2:     #C8D4E0;
+
+  /* Text */
+  --color-ink:          #0F1E2B;
+  --color-muted:        #506070;
+  --color-faint:        #8FA0AF;
+
+  /* Semantic */
+  --color-success:      #22c55e;
+  --color-success-bg:   #dcfce7;
+  --color-warning:      #f59e0b;
+  --color-warning-bg:   #fef3c7;
+  --color-danger:       #ef4444;
+  --color-danger-bg:    #fee2e2;
+  --color-info:         #3b82f6;
+  --color-info-bg:      #dbeafe;
+
+  /* Sidebar */
+  --color-sidebar:      #152938;
+  --color-sidebar-item: rgba(206,238,195,0.10);
+  --color-sidebar-active: rgba(206,238,195,0.18);
+
+  /* Font */
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Radius */
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  min-height: 100svh;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-2);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-up { animation: fadeUp 0.3s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.2s ease forwards; }
+.animate-slide-left { animation: slideInLeft 0.25s ease forwards; }
+
+/* ── Sidebar pattern ───────────────────────────────────── */
+.sidebar-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M0 20h40v1H0zm20-20v40h1V0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Horario colors ────────────────────────────────────── */
+.cell-mat { background-color: rgba(206,238,195,0.22); color: #1e6b3e; }
+.cell-qui { background-color: rgba(224,206,179,0.35); color: #7a5c1e; }
+.cell-his { background-color: rgba(224,179,179,0.25); color: #7a1e1e; }
+.cell-ing { background-color: rgba(179,206,224,0.28); color: #1e4d7a; }
+.cell-fis { background-color: rgba(224,206,224,0.28); color: #6b1e7a; }
+.cell-esp { background-color: rgba(255,245,200,0.40); color: #7a6a1e; }
+.cell-edf { background-color: rgba(200,255,230,0.30); color: #1e7a3d; }
