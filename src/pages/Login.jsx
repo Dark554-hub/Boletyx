@@ -74,6 +74,26 @@ if (perfil.rol === 'alumno') {
 }
 }
 
+if (perfil.rol === 'docente') {
+  const { data: docente, error: docenteError } = await supabase
+    .from('docentes')
+    .select('*')
+    .eq('perfil_id', authData.user.id)
+    .single()
+
+  if (docenteError || !docente) {
+    await supabase.auth.signOut()
+    setError('No se encontraron los datos del docente.')
+    return
+  }
+
+  datosRol = {
+    docente_id: docente.id,
+    numero_empleado: docente.numero_empleado,
+    especialidad: docente.especialidad,
+  }
+}
+
 const user = {
   id: perfil.id,
   nombre: perfil.nombre,
