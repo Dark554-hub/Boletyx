@@ -27,16 +27,26 @@ const ROLES = [
     desc: 'Gestiona calificaciones, asistencia y reportes de tus grupos',
   },
   {
-    id: 'tutor',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-    ),
-    name: 'Tutor',
-    desc: 'Supervisa el desempeño académico de tu hijo/a',
-  },
+  id: 'admin',
+  icon: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-10 h-10"
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2" />
+      <path d="M19 8v4" />
+      <path d="M17 10h4" />
+    </svg>
+  ),
+  name: 'Administrador',
+  desc: 'Gestiona alumnos, matrículas y control escolar',
+}
 ]
 
 export default function RoleSelector({ onSelect }) {
@@ -78,9 +88,9 @@ export default function RoleSelector({ onSelect }) {
             <button
               key={role.id}
               onClick={() => setSelected(role.id)}
-              className={[
+             className={[
                 'group flex flex-col items-center text-center px-6 py-8 rounded-3xl border cursor-pointer',
-                'transition-all duration-200 ease-out backdrop-blur-sm text-left',
+                'transition-all duration-200 ease-out backdrop-blur-sm',
                 isSelected
                   ? 'border-[#CEEEC3] shadow-[0_0_0_2px_#CEEEC3,0_16px_48px_rgba(0,0,0,.3)]'
                   : 'border-white/10 hover:border-[#CEEEC3]/40 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,.3)]',
@@ -99,7 +109,8 @@ export default function RoleSelector({ onSelect }) {
                 {role.icon}
               </div>
               <p className="text-lg font-bold text-white mb-2">{role.name}</p>
-              <p className="text-[13px] leading-relaxed"
+              <p
+                className="text-[13px] leading-relaxed text-center w-full"
                 style={{ color: 'rgba(255,255,255,0.46)' }}>
                 {role.desc}
               </p>

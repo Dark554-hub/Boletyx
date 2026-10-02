@@ -1,17 +1,11 @@
 import { useState } from 'react'
-import { USERS } from '../data/mockData'
+import { supabase } from '../lib/supabase'
 import { BoletyxLogo, IconMail, IconLock, IconEye, IconEyeOff, IconArrowLeft, IconXCircle } from '../components/Icons'
 
 const ROLE_LABELS = {
-  alumno:  'Alumno',
+  alumno: 'Alumno',
   docente: 'Docente',
-  tutor:   'Tutor / Padre de familia',
-}
-
-const DEMO = {
-  alumno:  'emilio.garcia@boletyx.edu',
-  docente: 'r.hernandez@boletyx.edu',
-  tutor:   'carlos.garcia@gmail.com',
+  admin: 'Administrador',
 }
 
 export default function Login({ role, onLogin, onBack }) {
@@ -20,13 +14,78 @@ export default function Login({ role, onLogin, onBack }) {
   const [showPass, setShowPass] = useState(false)
   const [error, setError]       = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setError('')
-    const user = USERS.find(u => u.role === role && u.email === email.trim() && u.password === password)
-    if (user) onLogin(user)
-    else setError('Correo o contraseña incorrectos.')
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setError('')
+
+  // 1. Iniciar sesión con Supabase Authentication
+  const { data: authData, error: authError } =
+    await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
+
+  if (authError) {
+    setError('Correo o contraseña incorrectos.')
+    return
   }
+
+  // 2. Obtener el perfil del usuario autenticado
+  const { data: perfil, error: perfilError } = await supabase
+    .from('perfiles')
+    .select('*')
+    .eq('id', authData.user.id)
+    .single()
+
+  if (perfilError || !perfil) {
+    await supabase.auth.signOut()
+    setError('No se encontró el perfil de este usuario.')
+    return
+  }
+
+  // 3. Comprobar que seleccionó el rol correcto
+  if (perfil.rol !== role) {
+    await supabase.auth.signOut()
+    setError(`Esta cuenta pertenece al rol ${perfil.rol}.`)
+    return
+  }
+
+  let datosRol = {}
+
+if (perfil.rol === 'alumno') {
+  const { data: alumno, error: alumnoError } = await supabase
+    .from('alumnos')
+    .select('*')
+    .eq('perfil_id', authData.user.id)
+    .single()
+
+  if (alumnoError || !alumno) {
+    await supabase.auth.signOut()
+    setError('No se encontraron los datos académicos del alumno.')
+    return
+  }
+
+  datosRol = {
+  alumno_id: alumno.id,
+  matricula: alumno.matricula,
+  semestre: alumno.semestre,
+  grupo: alumno.grupo,
+  turno: alumno.turno,
+}
+}
+
+const user = {
+  id: perfil.id,
+  nombre: perfil.nombre,
+  apellido: perfil.apellido,
+  role: perfil.rol,
+  email: authData.user.email,
+
+  ...datosRol,
+}
+
+  onLogin(user)
+}
 
   return (
     <div
@@ -136,20 +195,6 @@ export default function Login({ role, onLogin, onBack }) {
             Iniciar sesión
           </button>
         </form>
-
-        {/* Demo */}
-        <div className="mt-5 px-4 py-3 rounded-xl text-center text-xs"
-          style={{ background: '#F4F7FA', color: '#506070' }}>
-          <strong style={{ color: '#0F1E2B' }}>Acceso demo</strong> —{' '}
-          <button
-            onClick={() => { setEmail(DEMO[role]); setPassword('1234'); setError('') }}
-            className="underline font-bold cursor-pointer"
-            style={{ background: 'none', border: 'none', color: '#203A50', fontFamily: 'inherit', fontSize: 'inherit' }}
-          >
-            Autocompletar con {DEMO[role]}
-          </button>
-          {' '}/ 1234
-        </div>
 
         {/* Back */}
         <button
