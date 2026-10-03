@@ -69,7 +69,7 @@ function renderView(role, activeSection, user) {
     if (activeSection === 'datos')      return <DatosAlumno user={user} />
     if (activeSection === 'calif')      return <CalifAlumno user={user} />
     if (activeSection === 'horario')    return <HorarioAlumno user={user} />
-    if (activeSection === 'tramites')   return <TramitesAlumno />
+    if (activeSection === 'tramites')   return <TramitesAlumno user={user} />
     if (activeSection === 'calendario') return <CalendarioAlumno />
     return <DatosAlumno user={user} />
   }
