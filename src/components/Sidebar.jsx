@@ -2,7 +2,7 @@ import { BoletyxLogo, IconUser, IconGrade, IconCalendar, IconDoc,
          IconCheck, IconChart, IconSpeaker, IconHome,
          IconLogout, IconChevLeft, IconChevRight } from './Icons'
 
-const ROLE_LABELS = { alumno: 'Alumno', docente: 'Docente', tutor: 'Tutor / Padre' }
+const ROLE_LABELS = { alumno: 'Alumno', docente: 'Docente', admin: 'Administrador' }
 
 const SECTION_ICONS = {
   datos:      IconUser,

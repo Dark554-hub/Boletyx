@@ -16,12 +16,12 @@ import AsistenciaDocente from '../components/docente/AsistenciaDocente'
 import ReportesDocente   from '../components/docente/ReportesDocente'
 import AvisosDocente     from '../components/docente/AvisosDocente'
 
-// ── Tutor views
-import DatosTutor      from '../components/tutor/DatosTutor'
-import HorarioTutor    from '../components/tutor/HorarioTutor'
-import CalifTutor      from '../components/tutor/CalifTutor'
-import CalendarioTutor from '../components/tutor/CalendarioTutor'
-import TramitesTutor   from '../components/tutor/TramitesTutor'
+// ── Administrador views
+import DatosAdmin from '../components/admin/DatosAdmin'
+import AlumnosAdmin from '../components/admin/AlumnosAdmin'
+import InscripcionesAdmin from '../components/admin/InscripcionesAdmin'
+import MatriculasAdmin from '../components/admin/MatriculasAdmin'
+import AcademicoAdmin from '../components/admin/AcademicoAdmin'
 
 const NAV_ALUMNO  = [
   { id: 'datos',      label: 'Mi Perfil' },
@@ -37,19 +37,34 @@ const NAV_DOCENTE = [
   { id: 'reportes',   label: 'Reportes' },
   { id: 'avisos',     label: 'Avisos' },
 ]
-const NAV_TUTOR = [
-  { id: 'datos',      label: 'Mi Perfil' },
-  { id: 'calif',      label: 'Calificaciones' },
-  { id: 'horario',    label: 'Horario' },
-  { id: 'tramites',   label: 'Trámites' },
-  { id: 'calendario', label: 'Calendario' },
+const NAV_ADMIN = [
+  { id: 'datos', label: 'Panel' },
+  { id: 'alumnos', label: 'Alumnos' },
+  { id: 'inscripciones', label: 'Inscripciones' },
+  { id: 'academico', label: 'Académico' },
+  { id: 'matriculas', label: 'Matrículas' },
 ]
-const NAV_MAP = { alumno: NAV_ALUMNO, docente: NAV_DOCENTE, tutor: NAV_TUTOR }
+
+const NAV_MAP = {
+  alumno: NAV_ALUMNO,
+  docente: NAV_DOCENTE,
+  admin: NAV_ADMIN,
+}
 
 const SECTION_TITLES = {
-  datos: 'Mi Perfil', calif: 'Calificaciones', horario: 'Horario de Clases',
-  tramites: 'Trámites Escolares', calendario: 'Calendario Escolar',
-  asistencia: 'Asistencia', reportes: 'Reportes', avisos: 'Avisos Institucionales',
+  datos: 'Mi Perfil',
+  calif: 'Calificaciones',
+  horario: 'Horario de Clases',
+  tramites: 'Trámites Escolares',
+  calendario: 'Calendario Escolar',
+  asistencia: 'Asistencia',
+  reportes: 'Reportes',
+  avisos: 'Avisos Institucionales',
+  academico: 'Gestión Académica',
+
+  alumnos: 'Alumnos',
+  matriculas: 'Matrículas',
+  inscripciones: 'Inscripciones',
 }
 
 function renderView(role, activeSection, user) {
@@ -57,7 +72,7 @@ function renderView(role, activeSection, user) {
     if (activeSection === 'datos')      return <DatosAlumno user={user} />
     if (activeSection === 'calif')      return <CalifAlumno user={user} />
     if (activeSection === 'horario')    return <HorarioAlumno user={user} />
-    if (activeSection === 'tramites')   return <TramitesAlumno />
+    if (activeSection === 'tramites')   return <TramitesAlumno user={user} />
     if (activeSection === 'calendario') return <CalendarioAlumno />
     return <DatosAlumno user={user} />
   }
@@ -69,15 +84,33 @@ function renderView(role, activeSection, user) {
     if (activeSection === 'avisos')     return <AvisosDocente />
     return <DatosDocente user={user} />
   }
-  if (role === 'tutor') {
-    if (activeSection === 'datos')      return <DatosTutor user={user} />
-    if (activeSection === 'calif')      return <CalifTutor user={user} />
-    if (activeSection === 'horario')    return <HorarioTutor user={user} />
-    if (activeSection === 'tramites')   return <TramitesTutor />
-    if (activeSection === 'calendario') return <CalendarioTutor />
-    return <DatosTutor user={user} />
+  if (role === 'admin') {
+  if (activeSection === 'datos') {
+    return <DatosAdmin user={user} />
   }
+
+  if (activeSection === 'alumnos') {
+    return <AlumnosAdmin />
+  }
+
+  if (activeSection === 'inscripciones') {
+    return <InscripcionesAdmin />
+  }
+  if (activeSection === 'academico') {
+  return <AcademicoAdmin />
+  }
+
+  if (activeSection === 'matriculas') {
+    return <MatriculasAdmin />
+  }
+  
+
+  return <DatosAdmin user={user} />
 }
+
+    return <DatosAdmin user={user} />
+}
+
 
 export default function Dashboard({ user, onLogout }) {
   const [activeSection, setActiveSection] = useState('datos')
