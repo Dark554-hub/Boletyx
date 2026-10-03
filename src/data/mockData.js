@@ -51,25 +51,17 @@ export const USERS = [
     especialidad: 'Química',
     avatar: 'AR',
   },
-  // Tutores
-  {
-    id: 'TUT001',
-    role: 'tutor',
-    nombre: 'Carlos García Pérez',
-    email: 'carlos.garcia@gmail.com',
-    password: '1234',
-    avatar: 'CG',
-    hijosIds: ['ALU001'],
-  },
-  {
-    id: 'TUT002',
-    role: 'tutor',
-    nombre: 'María Sánchez Ruiz',
-    email: 'maria.sanchez@gmail.com',
-    password: '1234',
-    avatar: 'MS',
-    hijosIds: ['ALU002'],
-  },
+  
+  // Administrador
+{
+  id: 'ADM001',
+  role: 'admin',
+  nombre: 'Administrador Boletyx',
+  matricula: 'ADM-001',
+  email: 'admin@boletyx.edu',
+  password: '1234',
+  avatar: 'AD',
+},
 ];
 
 export const MATERIAS_ALUMNO = {
