@@ -180,7 +180,9 @@ export default function InscripcionesAdmin() {
 
       setAlumnos(alumnosResponse.data || [])
       setGrupos(gruposResponse.data || [])
-      setInscripciones(inscripcionesResponse.data || [])
+      setInscripciones(
+        inscripcionesResponse.data || []
+      )
 
     } catch (err) {
       console.error(
@@ -215,21 +217,27 @@ export default function InscripcionesAdmin() {
   const obtenerPerfil = alumno => {
     if (!alumno) return null
 
-    return obtenerRelacion(alumno.perfiles)
+    return obtenerRelacion(
+      alumno.perfiles
+    )
   }
 
 
   const obtenerAreaAlumno = alumno => {
     if (!alumno) return null
 
-    return obtenerRelacion(alumno.areas)
+    return obtenerRelacion(
+      alumno.areas
+    )
   }
 
 
   const obtenerAreaGrupo = grupo => {
     if (!grupo) return null
 
-    return obtenerRelacion(grupo.areas)
+    return obtenerRelacion(
+      grupo.areas
+    )
   }
 
 
@@ -237,430 +245,601 @@ export default function InscripcionesAdmin() {
   // ALUMNO SELECCIONADO
   // ==================================================
 
-  const alumnoSeleccionado = useMemo(() => {
-    if (!alumnoId) return null
+  const alumnoSeleccionado =
+    useMemo(() => {
+      if (!alumnoId) {
+        return null
+      }
 
-    return alumnos.find(
-      alumno =>
-        String(alumno.id) === String(alumnoId)
-    ) || null
-
-  }, [alumnoId, alumnos])
+      return (
+        alumnos.find(
+          alumno =>
+            String(alumno.id) ===
+            String(alumnoId)
+        ) || null
+      )
+    }, [
+      alumnoId,
+      alumnos,
+    ])
 
 
   // ==================================================
   // INSCRIPCIÓN ACTUAL DEL ALUMNO
   // ==================================================
   //
-  // Regla:
-  // cada alumno solamente puede pertenecer a un grupo.
-  //
-  // Si encontramos una inscripción cuyo alumno_id
-  // coincide con el alumno seleccionado, consideramos
-  // que ya tiene grupo asignado.
+  // Cada alumno solamente puede pertenecer
+  // a un grupo.
   //
   // ==================================================
 
-  const inscripcionAlumno = useMemo(() => {
-    if (!alumnoId) {
-      return null
-    }
+  const inscripcionAlumno =
+    useMemo(() => {
+      if (!alumnoId) {
+        return null
+      }
 
-    return (
-      inscripciones.find(
-        inscripcion =>
-          String(inscripcion.alumno_id) ===
-          String(alumnoId)
-      ) || null
-    )
-
-  }, [alumnoId, inscripciones])
+      return (
+        inscripciones.find(
+          inscripcion =>
+            String(
+              inscripcion.alumno_id
+            ) ===
+            String(alumnoId)
+        ) || null
+      )
+    }, [
+      alumnoId,
+      inscripciones,
+    ])
 
 
   // ==================================================
   // GRUPO SELECCIONADO
   // ==================================================
 
-  const grupoSeleccionado = useMemo(() => {
-    if (!grupoId) return null
+  const grupoSeleccionado =
+    useMemo(() => {
+      if (!grupoId) {
+        return null
+      }
 
-    return grupos.find(
-      grupo =>
-        String(grupo.id) === String(grupoId)
-    ) || null
-
-  }, [grupoId, grupos])
+      return (
+        grupos.find(
+          grupo =>
+            String(grupo.id) ===
+            String(grupoId)
+        ) || null
+      )
+    }, [
+      grupoId,
+      grupos,
+    ])
 
 
   // ==================================================
   // GRUPOS COMPATIBLES
   // ==================================================
   //
-  // Comprobamos:
+  // REGLAS:
   //
-  // 1. Que el alumno NO tenga ya una inscripción.
-  // 2. Semestre.
-  // 3. Turno.
-  // 4. Área académica.
+  // 1.º:
+  // alumno.area_id = null
+  // grupo.area_id = 1
+  // (Tronco Común)
+  //
+  // 3.º y 5.º:
+  // alumno y grupo deben pertenecer
+  // a la misma área.
+  //
+  // En todos los casos:
+  // mismo semestre + mismo turno.
   //
   // ==================================================
 
-  const gruposDisponibles = useMemo(() => {
-    if (!alumnoSeleccionado) {
-      return []
-    }
+  const gruposDisponibles =
+    useMemo(() => {
+      if (!alumnoSeleccionado) {
+        return []
+      }
 
-
-    // Si el alumno ya pertenece a un grupo,
-    // no puede seleccionar otro.
-    if (inscripcionAlumno) {
-      return []
-    }
-
-
-    return grupos.filter(grupo => {
-      const mismoSemestre =
-        grupo.semestre == null ||
-        alumnoSeleccionado.semestre == null ||
-        Number(grupo.semestre) ===
-          Number(alumnoSeleccionado.semestre)
-
-
-      const mismoTurno =
-        !grupo.turno ||
-        !alumnoSeleccionado.turno ||
-        grupo.turno.toLowerCase() ===
-          alumnoSeleccionado.turno.toLowerCase()
-
-
-      /*
-       * A partir de tercer semestre,
-       * alumno y grupo deben pertenecer
-       * a la misma área académica.
-       */
-      let mismaArea = true
-
-
-      if (
-        Number(alumnoSeleccionado.semestre) >= 3
-      ) {
-        mismaArea =
-          alumnoSeleccionado.area_id != null &&
-          grupo.area_id != null &&
-          Number(alumnoSeleccionado.area_id) ===
-            Number(grupo.area_id)
+      // Si ya está inscrito,
+      // no puede elegir otro grupo.
+      if (inscripcionAlumno) {
+        return []
       }
 
 
-      return (
-        mismoSemestre &&
-        mismoTurno &&
-        mismaArea
-      )
-    })
+      const semestreAlumno =
+        Number(
+          alumnoSeleccionado.semestre
+        )
 
-  }, [
-    grupos,
-    alumnoSeleccionado,
-    inscripcionAlumno,
-  ])
+
+      return grupos.filter(grupo => {
+        const semestreGrupo =
+          Number(grupo.semestre)
+
+
+        // ------------------------------------------
+        // MISMO SEMESTRE
+        // ------------------------------------------
+
+        const mismoSemestre =
+          semestreGrupo ===
+          semestreAlumno
+
+
+        // ------------------------------------------
+        // MISMO TURNO
+        // ------------------------------------------
+
+        const mismoTurno =
+          Boolean(grupo.turno) &&
+          Boolean(
+            alumnoSeleccionado.turno
+          ) &&
+          grupo.turno.toLowerCase() ===
+            alumnoSeleccionado.turno
+              .toLowerCase()
+
+
+        // ------------------------------------------
+        // MISMA ÁREA
+        // ------------------------------------------
+
+        let mismaArea = false
+
+
+        // Primer semestre:
+        // todos los grupos pertenecen
+        // a Tronco Común.
+        if (semestreAlumno === 1) {
+          mismaArea =
+            Number(grupo.area_id) === 1
+        }
+
+
+        // Tercer y quinto semestre:
+        // debe coincidir el área elegida.
+        else if (
+          semestreAlumno === 3 ||
+          semestreAlumno === 5
+        ) {
+          mismaArea =
+            alumnoSeleccionado.area_id !=
+              null &&
+            grupo.area_id != null &&
+            Number(
+              alumnoSeleccionado.area_id
+            ) ===
+              Number(grupo.area_id)
+        }
+
+
+        return (
+          mismoSemestre &&
+          mismoTurno &&
+          mismaArea
+        )
+      })
+    }, [
+      grupos,
+      alumnoSeleccionado,
+      inscripcionAlumno,
+    ])
 
 
   // ==================================================
   // REGISTRAR INSCRIPCIÓN
   // ==================================================
 
-  const registrarInscripcion = async e => {
-    e.preventDefault()
+  const registrarInscripcion =
+    async e => {
+      e.preventDefault()
 
-    setError('')
-    setMensaje('')
-
-
-    if (!alumnoId || !grupoId) {
-      setError(
-        'Selecciona un alumno y un grupo.'
-      )
-
-      return
-    }
-
-
-    if (!alumnoSeleccionado) {
-      setError(
-        'No se encontró el alumno seleccionado.'
-      )
-
-      return
-    }
-
-
-    // ----------------------------------------------
-    // VALIDAR QUE NO TENGA YA UN GRUPO
-    // ----------------------------------------------
-
-    if (inscripcionAlumno) {
-      setError(
-        'Este alumno ya tiene un grupo asignado. Elimina su inscripción actual antes de asignarle otro grupo.'
-      )
-
-      return
-    }
-
-
-    if (!grupoSeleccionado) {
-      setError(
-        'No se encontró el grupo seleccionado.'
-      )
-
-      return
-    }
-
-
-    // ----------------------------------------------
-    // VALIDAR SEMESTRE
-    // ----------------------------------------------
-
-    if (
-      alumnoSeleccionado.semestre != null &&
-      grupoSeleccionado.semestre != null &&
-      Number(alumnoSeleccionado.semestre) !==
-        Number(grupoSeleccionado.semestre)
-    ) {
-      setError(
-        'El grupo no corresponde al semestre del alumno.'
-      )
-
-      return
-    }
-
-
-    // ----------------------------------------------
-    // VALIDAR TURNO
-    // ----------------------------------------------
-
-    if (
-      alumnoSeleccionado.turno &&
-      grupoSeleccionado.turno &&
-      alumnoSeleccionado.turno.toLowerCase() !==
-        grupoSeleccionado.turno.toLowerCase()
-    ) {
-      setError(
-        'El grupo no corresponde al turno del alumno.'
-      )
-
-      return
-    }
-
-
-    // ----------------------------------------------
-    // VALIDAR ÁREA
-    // ----------------------------------------------
-
-    if (
-      Number(alumnoSeleccionado.semestre) >= 3
-    ) {
-
-      if (!alumnoSeleccionado.area_id) {
-        setError(
-          'El alumno no tiene un área académica asignada.'
-        )
-
-        return
-      }
-
-
-      if (!grupoSeleccionado.area_id) {
-        setError(
-          'El grupo no tiene un área académica asignada.'
-        )
-
-        return
-      }
+      setError('')
+      setMensaje('')
 
 
       if (
-        Number(alumnoSeleccionado.area_id) !==
-        Number(grupoSeleccionado.area_id)
+        !alumnoId ||
+        !grupoId
       ) {
         setError(
-          'El grupo no corresponde al área académica del alumno.'
+          'Selecciona un alumno y un grupo.'
         )
 
         return
       }
-    }
 
 
-    // ----------------------------------------------
-    // GUARDAR INSCRIPCIÓN
-    // ----------------------------------------------
+      if (!alumnoSeleccionado) {
+        setError(
+          'No se encontró el alumno seleccionado.'
+        )
 
-    setSaving(true)
-
-
-    try {
-      const { error: insertError } =
-        await supabase
-          .from('inscripciones')
-          .insert({
-            alumno_id: Number(alumnoId),
-            grupo_id: Number(grupoId),
-          })
-
-
-      if (insertError) {
-        throw insertError
+        return
       }
 
 
-      setMensaje(
-        'Inscripción registrada correctamente.'
-      )
+      // ----------------------------------------------
+      // VALIDAR QUE NO TENGA YA UN GRUPO
+      // ----------------------------------------------
 
-
-      setAlumnoId('')
-      setGrupoId('')
-
-
-      await cargarDatos()
-
-    } catch (err) {
-      console.error(
-        'Error registrando inscripción:',
-        err
-      )
-
-
-      if (err?.code === '23505') {
+      if (inscripcionAlumno) {
         setError(
-          'Este alumno ya tiene un grupo asignado.'
+          'Este alumno ya tiene un grupo asignado. Elimina su inscripción actual antes de asignarle otro grupo.'
         )
 
-      } else {
-        setError(
-          err?.message ||
-          'No se pudo registrar la inscripción.'
-        )
+        return
       }
 
-    } finally {
-      setSaving(false)
+
+      if (!grupoSeleccionado) {
+        setError(
+          'No se encontró el grupo seleccionado.'
+        )
+
+        return
+      }
+
+
+      const semestreAlumno =
+        Number(
+          alumnoSeleccionado.semestre
+        )
+
+
+      // ----------------------------------------------
+      // SOLO SEMESTRES 1, 3 Y 5
+      // ----------------------------------------------
+
+      if (
+        ![1, 3, 5].includes(
+          semestreAlumno
+        )
+      ) {
+        setError(
+          'Solo se permiten inscripciones de los semestres 1, 3 y 5.'
+        )
+
+        return
+      }
+
+
+      // ----------------------------------------------
+      // VALIDAR SEMESTRE
+      // ----------------------------------------------
+
+      if (
+        alumnoSeleccionado.semestre !=
+          null &&
+        grupoSeleccionado.semestre !=
+          null &&
+        Number(
+          alumnoSeleccionado.semestre
+        ) !==
+          Number(
+            grupoSeleccionado.semestre
+          )
+      ) {
+        setError(
+          'El grupo no corresponde al semestre del alumno.'
+        )
+
+        return
+      }
+
+
+      // ----------------------------------------------
+      // VALIDAR TURNO
+      // ----------------------------------------------
+
+      if (
+        alumnoSeleccionado.turno &&
+        grupoSeleccionado.turno &&
+        alumnoSeleccionado.turno
+          .toLowerCase() !==
+          grupoSeleccionado.turno
+            .toLowerCase()
+      ) {
+        setError(
+          'El grupo no corresponde al turno del alumno.'
+        )
+
+        return
+      }
+
+
+      // ----------------------------------------------
+      // VALIDAR ÁREA
+      // ----------------------------------------------
+
+      if (semestreAlumno === 1) {
+
+        // Primer semestre:
+        // el alumno tiene area_id = null,
+        // pero su grupo debe ser
+        // Tronco Común (area_id = 1).
+
+        if (
+          Number(
+            grupoSeleccionado.area_id
+          ) !== 1
+        ) {
+          setError(
+            'El grupo de primer semestre debe pertenecer a Tronco Común.'
+          )
+
+          return
+        }
+
+      } else if (
+        semestreAlumno === 3 ||
+        semestreAlumno === 5
+      ) {
+
+        if (
+          !alumnoSeleccionado.area_id
+        ) {
+          setError(
+            'El alumno no tiene un área académica asignada.'
+          )
+
+          return
+        }
+
+
+        if (
+          !grupoSeleccionado.area_id
+        ) {
+          setError(
+            'El grupo no tiene un área académica asignada.'
+          )
+
+          return
+        }
+
+
+        if (
+          Number(
+            alumnoSeleccionado.area_id
+          ) !==
+          Number(
+            grupoSeleccionado.area_id
+          )
+        ) {
+          setError(
+            'El grupo no corresponde al área académica del alumno.'
+          )
+
+          return
+        }
+      }
+
+
+      // ----------------------------------------------
+      // GUARDAR INSCRIPCIÓN
+      // ----------------------------------------------
+
+      setSaving(true)
+
+
+      try {
+        const {
+          error: insertError,
+        } =
+          await supabase
+            .from('inscripciones')
+            .insert({
+              alumno_id:
+                Number(alumnoId),
+
+              grupo_id:
+                Number(grupoId),
+            })
+
+
+        if (insertError) {
+          throw insertError
+        }
+
+
+        setMensaje(
+          'Inscripción registrada correctamente.'
+        )
+
+
+        setAlumnoId('')
+        setGrupoId('')
+
+
+        await cargarDatos()
+
+      } catch (err) {
+        console.error(
+          'Error registrando inscripción:',
+          err
+        )
+
+
+        if (
+          err?.code === '23505'
+        ) {
+          setError(
+            'Este alumno ya tiene un grupo asignado.'
+          )
+
+        } else {
+          setError(
+            err?.message ||
+            'No se pudo registrar la inscripción.'
+          )
+        }
+
+      } finally {
+        setSaving(false)
+      }
     }
-  }
 
 
   // ==================================================
   // ELIMINAR INSCRIPCIÓN
   // ==================================================
 
-  const eliminarInscripcion = async id => {
-    const confirmar = window.confirm(
-      '¿Deseas eliminar esta inscripción? El alumno quedará sin grupo asignado.'
-    )
+  const eliminarInscripcion =
+    async id => {
+      const confirmar =
+        window.confirm(
+          '¿Deseas eliminar esta inscripción? El alumno quedará sin grupo asignado.'
+        )
 
 
-    if (!confirmar) return
-
-
-    setError('')
-    setMensaje('')
-
-
-    try {
-      const { error: deleteError } =
-        await supabase
-          .from('inscripciones')
-          .delete()
-          .eq('id', id)
-
-
-      if (deleteError) {
-        throw deleteError
+      if (!confirmar) {
+        return
       }
 
 
-      setMensaje(
-        'Inscripción eliminada correctamente.'
-      )
+      setError('')
+      setMensaje('')
 
 
-      // Si estaba seleccionado el alumno cuya
-      // inscripción eliminamos, limpiamos el grupo.
-      setGrupoId('')
+      try {
+        const {
+          error: deleteError,
+        } =
+          await supabase
+            .from('inscripciones')
+            .delete()
+            .eq(
+              'id',
+              id
+            )
 
 
-      await cargarDatos()
-
-    } catch (err) {
-      console.error(
-        'Error eliminando inscripción:',
-        err
-      )
+        if (deleteError) {
+          throw deleteError
+        }
 
 
-      setError(
-        err?.message ||
-        'No se pudo eliminar la inscripción.'
-      )
+        setMensaje(
+          'Inscripción eliminada correctamente.'
+        )
+
+
+        setGrupoId('')
+
+
+        await cargarDatos()
+
+      } catch (err) {
+        console.error(
+          'Error eliminando inscripción:',
+          err
+        )
+
+
+        setError(
+          err?.message ||
+          'No se pudo eliminar la inscripción.'
+        )
+      }
     }
-  }
 
 
   // ==================================================
   // MATERIAS DEL GRUPO
   // ==================================================
 
-  const obtenerMaterias = grupo => {
-    if (!grupo?.grupo_materias) {
-      return []
+  const obtenerMaterias =
+    grupo => {
+      if (
+        !grupo?.grupo_materias
+      ) {
+        return []
+      }
+
+
+      return grupo.grupo_materias
+        .map(asignacion => {
+          const materia =
+            obtenerRelacion(
+              asignacion.materias
+            )
+
+
+          // Solamente contamos las materias
+          // pertenecientes al área del grupo.
+          //
+          // Esto también evita contar relaciones
+          // antiguas que conservamos en algunos
+          // grupos de tercer semestre.
+
+          if (
+            grupo.area_id != null &&
+            materia?.area_id != null &&
+            Number(
+              materia.area_id
+            ) !==
+              Number(
+                grupo.area_id
+              )
+          ) {
+            return null
+          }
+
+
+          return materia?.nombre
+        })
+        .filter(Boolean)
     }
-
-
-    return grupo.grupo_materias
-      .map(asignacion => {
-        const materia = obtenerRelacion(
-          asignacion.materias
-        )
-
-
-        /*
-         * Si el grupo tiene área, solamente
-         * contamos las materias de esa área.
-         *
-         * De esta forma no contamos relaciones
-         * antiguas que conservamos debido a
-         * las calificaciones existentes.
-         */
-        if (
-          grupo.area_id != null &&
-          materia?.area_id != null &&
-          Number(materia.area_id) !==
-            Number(grupo.area_id)
-        ) {
-          return null
-        }
-
-
-        return materia?.nombre
-      })
-      .filter(Boolean)
-  }
 
 
   // ==================================================
   // FORMATEAR TURNO
   // ==================================================
 
-  const formatearTurno = turno => {
-    if (!turno) return 'Sin turno'
+  const formatearTurno =
+    turno => {
+      if (!turno) {
+        return 'Sin turno'
+      }
 
 
-    return (
-      turno.charAt(0).toUpperCase() +
-      turno.slice(1)
-    )
-  }
+      return (
+        turno.charAt(0)
+          .toUpperCase() +
+        turno.slice(1)
+      )
+    }
+
+
+  // ==================================================
+  // NOMBRE DEL ÁREA PARA MOSTRAR
+  // ==================================================
+
+  const obtenerNombreAreaAlumno =
+    alumno => {
+      if (!alumno) {
+        return 'Sin área'
+      }
+
+
+      if (
+        Number(alumno.semestre) === 1
+      ) {
+        return 'Tronco Común'
+      }
+
+
+      return (
+        obtenerAreaAlumno(
+          alumno
+        )?.nombre ||
+        'Sin área'
+      )
+    }
 
 
   // ==================================================
@@ -709,7 +888,8 @@ export default function InscripcionesAdmin() {
           className="px-4 py-3 rounded-xl text-sm font-semibold"
           style={{
             background: '#dcfce7',
-            border: '1px solid #86efac',
+            border:
+              '1px solid #86efac',
             color: '#166534',
           }}
         >
@@ -727,7 +907,8 @@ export default function InscripcionesAdmin() {
           className="px-4 py-3 rounded-xl text-sm font-semibold"
           style={{
             background: '#fee2e2',
-            border: '1px solid #fca5a5',
+            border:
+              '1px solid #fca5a5',
             color: '#991b1b',
           }}
         >
@@ -756,7 +937,9 @@ export default function InscripcionesAdmin() {
 
 
         <form
-          onSubmit={registrarInscripcion}
+          onSubmit={
+            registrarInscripcion
+          }
           className="p-6"
         >
 
@@ -791,9 +974,14 @@ export default function InscripcionesAdmin() {
                 }}
                 className="w-full px-3 py-2.5 rounded-xl outline-none text-sm"
                 style={{
-                  border: '1px solid #DDE4ED',
-                  background: '#FFFFFF',
-                  color: '#0F1E2B',
+                  border:
+                    '1px solid #DDE4ED',
+
+                  background:
+                    '#FFFFFF',
+
+                  color:
+                    '#0F1E2B',
                 }}
               >
 
@@ -802,36 +990,46 @@ export default function InscripcionesAdmin() {
                 </option>
 
 
-                {alumnos.map(alumno => {
-                  const perfil =
-                    obtenerPerfil(alumno)
-
-                  const area =
-                    obtenerAreaAlumno(alumno)
-
-
-                  const nombre = perfil
-                    ? `${perfil.nombre} ${perfil.apellido}`
-                    : 'Sin nombre'
+                {alumnos.map(
+                  alumno => {
+                    const perfil =
+                      obtenerPerfil(
+                        alumno
+                      )
 
 
-                  return (
-                    <option
-                      key={alumno.id}
-                      value={alumno.id}
-                    >
-                      {alumno.matricula}
-                      {' · '}
-                      {nombre}
-                      {' · '}
-                      Sem. {alumno.semestre ?? '—'}
+                    const nombre =
+                      perfil
+                        ? `${perfil.nombre} ${perfil.apellido}`
+                        : 'Sin nombre'
 
-                      {Number(alumno.semestre) >= 3 &&
-                        ` · ${area?.nombre || 'Sin área'}`
-                      }
-                    </option>
-                  )
-                })}
+
+                    return (
+                      <option
+                        key={
+                          alumno.id
+                        }
+                        value={
+                          alumno.id
+                        }
+                      >
+                        {alumno.matricula}
+                        {' · '}
+                        {nombre}
+                        {' · '}
+                        Sem.{' '}
+                        {alumno.semestre ??
+                          '—'}
+
+                        {' · '}
+
+                        {obtenerNombreAreaAlumno(
+                          alumno
+                        )}
+                      </option>
+                    )
+                  }
+                )}
 
               </select>
 
@@ -866,13 +1064,20 @@ export default function InscripcionesAdmin() {
                 }}
                 disabled={
                   !alumnoId ||
-                  Boolean(inscripcionAlumno)
+                  Boolean(
+                    inscripcionAlumno
+                  )
                 }
                 className="w-full px-3 py-2.5 rounded-xl outline-none text-sm disabled:opacity-50"
                 style={{
-                  border: '1px solid #DDE4ED',
-                  background: '#FFFFFF',
-                  color: '#0F1E2B',
+                  border:
+                    '1px solid #DDE4ED',
+
+                  background:
+                    '#FFFFFF',
+
+                  color:
+                    '#0F1E2B',
                 }}
               >
 
@@ -881,24 +1086,35 @@ export default function InscripcionesAdmin() {
                     ? 'Primero selecciona un alumno'
                     : inscripcionAlumno
                       ? 'El alumno ya tiene un grupo asignado'
-                      : 'Selecciona un grupo'}
+                      : gruposDisponibles.length ===
+                          0
+                        ? 'No hay grupos compatibles'
+                        : 'Selecciona un grupo'}
                 </option>
 
 
                 {gruposDisponibles.map(
                   grupo => {
                     const area =
-                      obtenerAreaGrupo(grupo)
+                      obtenerAreaGrupo(
+                        grupo
+                      )
 
 
                     return (
                       <option
-                        key={grupo.id}
-                        value={grupo.id}
+                        key={
+                          grupo.id
+                        }
+                        value={
+                          grupo.id
+                        }
                       >
                         {grupo.nombre}
                         {' · '}
-                        Sem. {grupo.semestre ?? '—'}
+                        Sem.{' '}
+                        {grupo.semestre ??
+                          '—'}
                         {' · '}
                         {formatearTurno(
                           grupo.turno
@@ -929,9 +1145,14 @@ export default function InscripcionesAdmin() {
             <div
               className="mt-4 px-4 py-3 rounded-xl text-xs"
               style={{
-                background: '#F4F7FA',
-                border: '1px solid #DDE4ED',
-                color: '#506070',
+                background:
+                  '#F4F7FA',
+
+                border:
+                  '1px solid #DDE4ED',
+
+                color:
+                  '#506070',
               }}
             >
 
@@ -955,22 +1176,16 @@ export default function InscripcionesAdmin() {
               </strong>
 
 
-              {Number(
-                alumnoSeleccionado.semestre
-              ) >= 3 && (
-                <>
-                  {' · '}
+              {' · '}
 
-                  Área:{' '}
 
-                  <strong>
-                    {obtenerAreaAlumno(
-                      alumnoSeleccionado
-                    )?.nombre ||
-                      'Sin área'}
-                  </strong>
-                </>
-              )}
+              Área:{' '}
+
+              <strong>
+                {obtenerNombreAreaAlumno(
+                  alumnoSeleccionado
+                )}
+              </strong>
 
 
               {' · '}
@@ -979,7 +1194,9 @@ export default function InscripcionesAdmin() {
               Grupos disponibles:{' '}
 
               <strong>
-                {gruposDisponibles.length}
+                {
+                  gruposDisponibles.length
+                }
               </strong>
 
             </div>
@@ -1010,16 +1227,23 @@ export default function InscripcionesAdmin() {
                 <div
                   className="mt-3 px-4 py-3 rounded-xl text-xs"
                   style={{
-                    background: '#FFF7ED',
-                    border: '1px solid #FED7AA',
-                    color: '#9A3412',
+                    background:
+                      '#FFF7ED',
+
+                    border:
+                      '1px solid #FED7AA',
+
+                    color:
+                      '#9A3412',
                   }}
                 >
 
-                  Este alumno ya está inscrito en el grupo{' '}
+                  Este alumno ya está
+                  inscrito en el grupo{' '}
 
                   <strong>
-                    {grupoActual?.nombre || '—'}
+                    {grupoActual?.nombre ||
+                      '—'}
                   </strong>
 
 
@@ -1036,13 +1260,16 @@ export default function InscripcionesAdmin() {
                       {' · '}
 
                       <strong>
-                        {areaActual.nombre}
+                        {
+                          areaActual.nombre
+                        }
                       </strong>
                     </>
                   )}
 
 
-                  . Para cambiarlo de grupo, elimina primero
+                  . Para cambiarlo de
+                  grupo, elimina primero
                   su inscripción actual.
 
                 </div>
@@ -1060,16 +1287,23 @@ export default function InscripcionesAdmin() {
               <div
                 className="mt-3 px-4 py-3 rounded-xl text-xs"
                 style={{
-                  background: '#F8FAFC',
-                  border: '1px solid #DDE4ED',
-                  color: '#506070',
+                  background:
+                    '#F8FAFC',
+
+                  border:
+                    '1px solid #DDE4ED',
+
+                  color:
+                    '#506070',
                 }}
               >
 
                 Grupo seleccionado:{' '}
 
                 <strong>
-                  {grupoSeleccionado.nombre}
+                  {
+                    grupoSeleccionado.nombre
+                  }
                 </strong>
 
 
@@ -1092,9 +1326,11 @@ export default function InscripcionesAdmin() {
                 Materias:{' '}
 
                 <strong>
-                  {obtenerMaterias(
-                    grupoSeleccionado
-                  ).length}
+                  {
+                    obtenerMaterias(
+                      grupoSeleccionado
+                    ).length
+                  }
                 </strong>
 
               </div>
@@ -1113,7 +1349,9 @@ export default function InscripcionesAdmin() {
                 saving ||
                 !alumnoId ||
                 !grupoId ||
-                Boolean(inscripcionAlumno)
+                Boolean(
+                  inscripcionAlumno
+                )
               }
             >
               {saving
@@ -1187,7 +1425,9 @@ export default function InscripcionesAdmin() {
 
 
                   const perfil =
-                    obtenerPerfil(alumno)
+                    obtenerPerfil(
+                      alumno
+                    )
 
 
                   const grupo =
@@ -1197,11 +1437,15 @@ export default function InscripcionesAdmin() {
 
 
                   const area =
-                    obtenerAreaGrupo(grupo)
+                    obtenerAreaGrupo(
+                      grupo
+                    )
 
 
                   const materias =
-                    obtenerMaterias(grupo)
+                    obtenerMaterias(
+                      grupo
+                    )
 
 
                   const nombreAlumno =
@@ -1219,8 +1463,11 @@ export default function InscripcionesAdmin() {
 
                       <TD
                         style={{
-                          color: '#8FA0AF',
-                          fontSize: 12,
+                          color:
+                            '#8FA0AF',
+
+                          fontSize:
+                            12,
                         }}
                       >
                         {index + 1}
@@ -1266,7 +1513,8 @@ export default function InscripcionesAdmin() {
 
 
                       <TD>
-                        {materias.length > 0
+                        {materias.length >
+                        0
                           ? `${materias.length} materias`
                           : 'Sin materias'}
                       </TD>
@@ -1289,9 +1537,14 @@ export default function InscripcionesAdmin() {
                           }
                           className="px-3 py-2 rounded-lg text-xs font-bold cursor-pointer"
                           style={{
-                            background: '#fee2e2',
-                            color: '#991b1b',
-                            border: '1px solid #fecaca',
+                            background:
+                              '#fee2e2',
+
+                            color:
+                              '#991b1b',
+
+                            border:
+                              '1px solid #fecaca',
                           }}
                         >
                           Eliminar
@@ -1305,16 +1558,19 @@ export default function InscripcionesAdmin() {
               )}
 
 
-              {inscripciones.length === 0 && (
+              {inscripciones.length ===
+                0 && (
                 <tr>
                   <td
                     colSpan="10"
                     className="px-4 py-10 text-center text-sm"
                     style={{
-                      color: '#8FA0AF',
+                      color:
+                        '#8FA0AF',
                     }}
                   >
-                    No hay inscripciones registradas.
+                    No hay inscripciones
+                    registradas.
                   </td>
                 </tr>
               )}
