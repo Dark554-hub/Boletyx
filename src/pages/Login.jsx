@@ -37,11 +37,15 @@ const handleSubmit = async (e) => {
     .eq('id', authData.user.id)
     .single()
 
-  if (perfilError || !perfil) {
-    await supabase.auth.signOut()
-    setError('No se encontró el perfil de este usuario.')
-    return
-  }
+if (perfilError || !perfil) {
+  console.error('ERROR PERFIL:', perfilError)
+  console.log('PERFIL:', perfil)
+  console.log('UUID AUTH:', authData.user.id)
+
+  await supabase.auth.signOut()
+  setError('No se encontró el perfil de este usuario.')
+  return
+}
 
   // 3. Comprobar que seleccionó el rol correcto
   if (perfil.rol !== role) {

@@ -49,7 +49,6 @@ export default function CalifAlumno({ user }) {
             parcial_1,
             parcial_2,
             parcial_3,
-            parcial_4,
             promedio
           )
         `)
@@ -63,21 +62,29 @@ export default function CalifAlumno({ user }) {
       }
 
       const materiasFormateadas = (data || []).map(inscripcion => {
-        const calificacion = inscripcion.calificaciones?.[0]
+        const calificacion = Array.isArray(inscripcion.calificaciones)
+      ? inscripcion.calificaciones[0]
+        : inscripcion.calificaciones
+
+        const p1 = Number(calificacion?.parcial_1 ?? 0)
+        const p2 = Number(calificacion?.parcial_2 ?? 0)
+        const p3 = Number(calificacion?.parcial_3 ?? 0)
 
         return {
           id: inscripcion.id,
           nombre: inscripcion.grupos?.materias?.nombre || 'Sin materia',
+
           docente: inscripcion.grupos?.docentes?.perfiles
             ? `${inscripcion.grupos.docentes.perfiles.nombre} ${inscripcion.grupos.docentes.perfiles.apellido}`
             : 'Sin docente',
+
           calificaciones: [
-            calificacion?.parcial_1 ?? 0,
-            calificacion?.parcial_2 ?? 0,
-            calificacion?.parcial_3 ?? 0,
-            calificacion?.parcial_4 ?? 0,
+            p1,
+            p2,
+            p3,
           ],
-          promedio: Number(calificacion?.promedio ?? 0),
+
+          promedio: (p1 + p2 + p3) / 3,
         }
       })
 
@@ -86,7 +93,7 @@ export default function CalifAlumno({ user }) {
     }
 
     cargarCalificaciones()
-  }, [user.id])
+  }, [user.alumno_id])
 
   const promedio = materias.length
     ? (
@@ -145,7 +152,7 @@ export default function CalifAlumno({ user }) {
         <CardHeader>
           <div>
             <CardTitle>Detalle por materia</CardTitle>
-            <CardSubtitle>Parciales P1 · P2 · P3 · P4</CardSubtitle>
+            <CardSubtitle>Parciales P1 · P2 · P3</CardSubtitle>
           </div>
         </CardHeader>
 
@@ -164,7 +171,6 @@ export default function CalifAlumno({ user }) {
                   'P1',
                   'P2',
                   'P3',
-                  'P4',
                   'Promedio',
                   'Estado',
                 ].map(h => (
