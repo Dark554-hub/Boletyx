@@ -13,14 +13,21 @@ import {
   Pill,
 } from '../UI'
 
+
 export default function MatriculasAdmin() {
   const [alumnos, setAlumnos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+
   useEffect(() => {
     cargarMatriculas()
   }, [])
+
+
+  // ==================================================
+  // CARGAR MATRÍCULAS
+  // ==================================================
 
   const cargarMatriculas = async () => {
     setLoading(true)
@@ -36,6 +43,12 @@ export default function MatriculasAdmin() {
             semestre,
             grupo,
             turno,
+            area_id,
+
+            areas (
+              id,
+              nombre
+            ),
 
             perfiles (
               nombre,
@@ -50,17 +63,26 @@ export default function MatriculasAdmin() {
                 nombre,
                 semestre,
                 turno,
-                ciclo_escolar
+                ciclo_escolar,
+                area_id,
+
+                areas (
+                  id,
+                  nombre
+                )
               )
             )
           `)
           .order('matricula')
 
+
       if (queryError) {
         throw queryError
       }
 
+
       setAlumnos(data || [])
+
     } catch (err) {
       console.error(
         'Error cargando matrículas:',
@@ -68,39 +90,79 @@ export default function MatriculasAdmin() {
       )
 
       setError(
+        err?.message ||
         'No se pudieron cargar las matrículas.'
       )
+
     } finally {
       setLoading(false)
     }
   }
 
-  const obtenerPerfil = alumno => {
-    if (!alumno?.perfiles) return null
 
-    return Array.isArray(alumno.perfiles)
-      ? alumno.perfiles[0]
-      : alumno.perfiles
+  // ==================================================
+  // HELPERS
+  // ==================================================
+
+  const obtenerRelacion = relacion => {
+    if (!relacion) return null
+
+    return Array.isArray(relacion)
+      ? relacion[0]
+      : relacion
   }
+
+
+  const obtenerPerfil = alumno => {
+    if (!alumno) return null
+
+    return obtenerRelacion(
+      alumno.perfiles
+    )
+  }
+
+
+  const obtenerAreaAlumno = alumno => {
+    if (!alumno) return null
+
+    return obtenerRelacion(
+      alumno.areas
+    )
+  }
+
 
   const obtenerGrupoActual = alumno => {
     const inscripciones =
       alumno?.inscripciones || []
 
+
     if (inscripciones.length === 0) {
       return null
     }
 
+
     const inscripcion =
       inscripciones[0]
 
-    return Array.isArray(inscripcion.grupos)
-      ? inscripcion.grupos[0]
-      : inscripcion.grupos
+
+    return obtenerRelacion(
+      inscripcion.grupos
+    )
   }
+
+
+  const obtenerAreaGrupo = grupo => {
+    if (!grupo) return null
+
+    return obtenerRelacion(
+      grupo.areas
+    )
+  }
+
 
   const formatearTurno = turno => {
     if (!turno) return '—'
+
 
     return (
       turno.charAt(0).toUpperCase() +
@@ -108,28 +170,47 @@ export default function MatriculasAdmin() {
     )
   }
 
+
+  // ==================================================
+  // LOADING
+  // ==================================================
+
   if (loading) {
     return (
       <div
         className="p-6 text-sm"
-        style={{ color: '#506070' }}
+        style={{
+          color: '#506070',
+        }}
       >
         Cargando matrículas...
       </div>
     )
   }
 
+
+  // ==================================================
+  // RENDER
+  // ==================================================
+
   return (
     <div className="space-y-6">
+
       <PageHeader
         title="Matrículas"
         subtitle="Consulta las matrículas asignadas a los alumnos"
         action={
           <Pill variant="blue">
-            {alumnos.length} matrículas
+            {alumnos.length}{' '}
+            {alumnos.length === 1
+              ? 'matrícula'
+              : 'matrículas'}
           </Pill>
         }
       />
+
+
+      {/* ERROR */}
 
       {error && (
         <div
@@ -144,9 +225,15 @@ export default function MatriculasAdmin() {
         </div>
       )}
 
+
+      {/* TABLA */}
+
       <Card>
+
         <CardHeader>
+
           <div>
+
             <CardTitle>
               Matrículas asignadas
             </CardTitle>
@@ -154,12 +241,16 @@ export default function MatriculasAdmin() {
             <CardSubtitle>
               Relación de alumnos y su información escolar actual
             </CardSubtitle>
+
           </div>
+
 
           <Pill variant="mint">
             {alumnos.length}
           </Pill>
+
         </CardHeader>
+
 
         <DataTable
           headers={[
@@ -168,103 +259,220 @@ export default function MatriculasAdmin() {
             'Alumno',
             'Semestre',
             'Grupo',
+            'Área',
             'Turno',
             'Ciclo',
           ]}
           rows={
             <>
-              {alumnos.map((alumno, index) => {
-                const perfil =
-                  obtenerPerfil(alumno)
 
-                const grupoActual =
-                  obtenerGrupoActual(alumno)
+              {alumnos.map(
+                (alumno, index) => {
 
-                const nombreCompleto = perfil
-                  ? `${perfil.nombre} ${perfil.apellido}`
-                  : 'Sin nombre'
+                  const perfil =
+                    obtenerPerfil(alumno)
 
-                const semestre =
-                  grupoActual?.semestre ??
-                  alumno.semestre ??
-                  '—'
 
-                const grupo =
-                  grupoActual?.nombre ??
-                  alumno.grupo ??
-                  '—'
+                  const grupoActual =
+                    obtenerGrupoActual(alumno)
 
-                const turno =
-                  grupoActual?.turno ??
-                  alumno.turno
 
-                const ciclo =
-                  grupoActual?.ciclo_escolar ??
-                  'Sin inscripción'
+                  /*
+                   * Si existe inscripción,
+                   * usamos el área del grupo.
+                   *
+                   * Si todavía no existe inscripción,
+                   * mostramos el área asignada
+                   * directamente al alumno.
+                   */
+                  const areaAlumno =
+                    obtenerAreaAlumno(alumno)
 
-                return (
-                  <TR key={alumno.id}>
-                    <TD
-                      style={{
-                        color: '#8FA0AF',
-                        fontSize: 12,
-                      }}
-                    >
-                      {index + 1}
-                    </TD>
 
-                    <TD>
-                      <span
-                        className="font-bold tabular-nums"
+                  const areaGrupo =
+                    obtenerAreaGrupo(
+                      grupoActual
+                    )
+
+
+                  const area =
+                    areaGrupo?.nombre ??
+                    areaAlumno?.nombre ??
+                    '—'
+
+
+                  const nombreCompleto =
+                    perfil
+                      ? `${perfil.nombre} ${perfil.apellido}`
+                      : 'Sin nombre'
+
+
+                  /*
+                   * La inscripción es la fuente
+                   * principal para grupo, semestre
+                   * y turno.
+                   *
+                   * Si aún no está inscrito,
+                   * usamos los datos del alumno.
+                   */
+                  const semestre =
+                    grupoActual?.semestre ??
+                    alumno.semestre ??
+                    '—'
+
+
+                  const grupo =
+                    grupoActual?.nombre ??
+                    alumno.grupo ??
+                    '—'
+
+
+                  const turno =
+                    grupoActual?.turno ??
+                    alumno.turno
+
+
+                  const ciclo =
+                    grupoActual?.ciclo_escolar ??
+                    null
+
+
+                  return (
+                    <TR key={alumno.id}>
+
+                      {/* # */}
+
+                      <TD
                         style={{
-                          color: '#203A50',
+                          color: '#8FA0AF',
+                          fontSize: 12,
                         }}
                       >
-                        {alumno.matricula || '—'}
-                      </span>
-                    </TD>
+                        {index + 1}
+                      </TD>
 
-                    <TD className="font-semibold">
-                      {nombreCompleto}
-                    </TD>
 
-                    <TD>
-                      {semestre}
-                    </TD>
+                      {/* MATRÍCULA */}
 
-                    <TD>
-                      <Pill variant="default">
-                        {grupo}
-                      </Pill>
-                    </TD>
+                      <TD>
 
-                    <TD>
-                      {formatearTurno(turno)}
-                    </TD>
-
-                    <TD>
-                      {grupoActual ? (
-                        <Pill variant="blue">
-                          {ciclo}
-                        </Pill>
-                      ) : (
                         <span
+                          className="font-bold tabular-nums"
                           style={{
-                            color: '#8FA0AF',
+                            color: '#203A50',
                           }}
                         >
-                          Sin inscripción
+                          {alumno.matricula ||
+                            '—'}
                         </span>
-                      )}
-                    </TD>
-                  </TR>
-                )
-              })}
+
+                      </TD>
+
+
+                      {/* ALUMNO */}
+
+                      <TD className="font-semibold">
+                        {nombreCompleto}
+                      </TD>
+
+
+                      {/* SEMESTRE */}
+
+                      <TD>
+                        {semestre}
+                      </TD>
+
+
+                      {/* GRUPO */}
+
+                      <TD>
+
+                        {grupoActual ? (
+                          <Pill variant="default">
+                            {grupo}
+                          </Pill>
+                        ) : (
+                          <span
+                            style={{
+                              color: '#8FA0AF',
+                            }}
+                          >
+                            Sin grupo
+                          </span>
+                        )}
+
+                      </TD>
+
+
+                      {/* ÁREA */}
+
+                      <TD>
+
+                        {area !== '—' ? (
+                          <span
+                            className="font-medium"
+                            style={{
+                              color: '#203A50',
+                            }}
+                          >
+                            {area}
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              color: '#8FA0AF',
+                            }}
+                          >
+                            Sin área
+                          </span>
+                        )}
+
+                      </TD>
+
+
+                      {/* TURNO */}
+
+                      <TD>
+                        {formatearTurno(
+                          turno
+                        )}
+                      </TD>
+
+
+                      {/* CICLO */}
+
+                      <TD>
+
+                        {grupoActual ? (
+                          <Pill variant="blue">
+                            {ciclo ||
+                              'Sin ciclo'}
+                          </Pill>
+                        ) : (
+                          <span
+                            style={{
+                              color: '#8FA0AF',
+                            }}
+                          >
+                            Sin inscripción
+                          </span>
+                        )}
+
+                      </TD>
+
+                    </TR>
+                  )
+                }
+              )}
+
+
+              {/* SIN ALUMNOS */}
 
               {alumnos.length === 0 && (
                 <tr>
+
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="px-4 py-10 text-center text-sm"
                     style={{
                       color: '#8FA0AF',
@@ -272,12 +480,16 @@ export default function MatriculasAdmin() {
                   >
                     No hay matrículas registradas.
                   </td>
+
                 </tr>
               )}
+
             </>
           }
         />
+
       </Card>
+
     </div>
   )
 }
