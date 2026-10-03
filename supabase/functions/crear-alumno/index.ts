@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
 }
 
-Deno.serve(async req => {
+Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: corsHeaders,
@@ -45,7 +46,10 @@ Deno.serve(async req => {
       )
     }
 
-    // Cliente que representa al usuario que hizo la petición
+    // ==================================================
+    // CLIENTE DEL USUARIO QUE HACE LA PETICIÓN
+    // ==================================================
+
     const supabaseUsuario = createClient(
       supabaseUrl,
       anonKey,
@@ -73,8 +77,10 @@ Deno.serve(async req => {
       )
     }
 
-    // Cliente administrativo.
-    // Esta clave nunca llega al navegador.
+    // ==================================================
+    // CLIENTE ADMINISTRATIVO
+    // ==================================================
+
     const supabaseAdmin = createClient(
       supabaseUrl,
       serviceRoleKey,
@@ -86,7 +92,10 @@ Deno.serve(async req => {
       }
     )
 
-    // Verificar que quien llama sea realmente admin
+    // ==================================================
+    // VERIFICAR QUE EL USUARIO SEA ADMIN
+    // ==================================================
+
     const {
       data: perfilAdmin,
       error: perfilAdminError,
@@ -109,6 +118,10 @@ Deno.serve(async req => {
         403
       )
     }
+
+    // ==================================================
+    // DATOS DEL FORMULARIO
+    // ==================================================
 
     const body = await req.json()
 
@@ -133,7 +146,13 @@ Deno.serve(async req => {
       String(body.grupo || '').trim()
 
     const turno =
-      String(body.turno || '').trim()
+      String(body.turno || '')
+        .trim()
+        .toLowerCase()
+
+    // ==================================================
+    // VALIDACIONES
+    // ==================================================
 
     if (
       !nombre ||
@@ -176,52 +195,22 @@ Deno.serve(async req => {
       )
     }
 
-    // -----------------------------------------
-    // Generar matrícula
-    // Formato temporal:
-    // AÑO + 4 dígitos
-    // Ejemplo: 20260001
-    // -----------------------------------------
-
-    const anio =
-      new Date().getFullYear().toString()
-
-    const { data: alumnosAnio, error: matriculaError } =
-      await supabaseAdmin
-        .from('alumnos')
-        .select('matricula')
-        .like('matricula', `${anio}%`)
-
-    if (matriculaError) {
-      throw matriculaError
+    if (
+      turno !== 'matutino' &&
+      turno !== 'vespertino'
+    ) {
+      return respuesta(
+        {
+          success: false,
+          error: 'Turno no válido.',
+        },
+        400
+      )
     }
 
-    let mayorNumero = 0
-
-    for (const alumno of alumnosAnio || []) {
-      const matricula =
-        String(alumno.matricula || '')
-
-      const consecutivo =
-        Number(matricula.slice(4))
-
-      if (
-        Number.isInteger(consecutivo) &&
-        consecutivo > mayorNumero
-      ) {
-        mayorNumero = consecutivo
-      }
-    }
-
-    const siguiente =
-      String(mayorNumero + 1).padStart(4, '0')
-
-    const matricula =
-      `${anio}${siguiente}`
-
-    // -----------------------------------------
-    // Crear usuario en Supabase Auth
-    // -----------------------------------------
+    // ==================================================
+    // CREAR USUARIO EN AUTH
+    // ==================================================
 
     const {
       data: authData,
@@ -243,8 +232,7 @@ Deno.serve(async req => {
       )
     }
 
-    const nuevoUsuario =
-      authData.user
+    const nuevoUsuario = authData.user
 
     if (!nuevoUsuario) {
       throw new Error(
@@ -253,9 +241,9 @@ Deno.serve(async req => {
     }
 
     try {
-      // -----------------------------------------
-      // Crear perfil
-      // -----------------------------------------
+      // ==================================================
+      // CREAR PERFIL
+      // ==================================================
 
       const { error: perfilError } =
         await supabaseAdmin
@@ -271,39 +259,114 @@ Deno.serve(async req => {
         throw perfilError
       }
 
-      // -----------------------------------------
-      // Crear alumno
-      // -----------------------------------------
+      // ==================================================
+      // GENERAR MATRÍCULA ÚNICA
+      // ==================================================
 
-      const { error: alumnoError } =
-        await supabaseAdmin
+      let alumnoCreado = false
+      let matriculaFinal = ''
+      let ultimoError: unknown = null
+
+      for (
+        let intento = 0;
+        intento < 5;
+        intento++
+      ) {
+        const anio =
+          new Date()
+            .getFullYear()
+            .toString()
+
+        const {
+          data: alumnosAnio,
+          error: matriculaError,
+        } = await supabaseAdmin
           .from('alumnos')
-          .insert({
-            perfil_id: nuevoUsuario.id,
-            matricula,
-            semestre,
-            grupo: grupo || null,
-            turno: turno || null,
-          })
+          .select('matricula')
+          .like('matricula', `${anio}%`)
 
-      if (alumnoError) {
-        throw alumnoError
+        if (matriculaError) {
+          throw matriculaError
+        }
+
+        let mayorNumero = 0
+
+        for (const alumno of alumnosAnio || []) {
+          const matriculaActual =
+            String(alumno.matricula || '')
+
+          const consecutivo =
+            Number(
+              matriculaActual.slice(4)
+            )
+
+          if (
+            Number.isInteger(consecutivo) &&
+            consecutivo > mayorNumero
+          ) {
+            mayorNumero = consecutivo
+          }
+        }
+
+        const siguiente =
+          String(mayorNumero + 1)
+            .padStart(4, '0')
+
+        const matricula =
+          `${anio}${siguiente}`
+
+        const { error: alumnoError } =
+          await supabaseAdmin
+            .from('alumnos')
+            .insert({
+              perfil_id: nuevoUsuario.id,
+              matricula,
+              semestre,
+              grupo: grupo || null,
+              turno,
+            })
+
+        if (!alumnoError) {
+          alumnoCreado = true
+          matriculaFinal = matricula
+          break
+        }
+
+        ultimoError = alumnoError
+
+        // 23505 = unique_violation
+        if (alumnoError.code !== '23505') {
+          throw alumnoError
+        }
       }
+
+      if (!alumnoCreado) {
+        throw (
+          ultimoError ||
+          new Error(
+            'No se pudo generar una matrícula única.'
+          )
+        )
+      }
+
+      // ==================================================
+      // RESPUESTA EXITOSA
+      // ==================================================
+
+      return respuesta({
+        success: true,
+        matricula: matriculaFinal,
+        user_id: nuevoUsuario.id,
+      })
     } catch (databaseError) {
-      // Si falla la BD, eliminamos también
-      // la cuenta Auth para no dejar basura.
+      // Si falla la creación del perfil o alumno,
+      // eliminar también la cuenta de Auth.
       await supabaseAdmin.auth.admin.deleteUser(
         nuevoUsuario.id
       )
 
       throw databaseError
     }
-
-    return respuesta({
-      success: true,
-      matricula,
-      user_id: nuevoUsuario.id,
-    })
   } catch (error) {
     console.error('crear-alumno:', error)
 
@@ -330,7 +393,8 @@ function respuesta(
       status,
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/json',
+        'Content-Type':
+          'application/json',
       },
     }
   )

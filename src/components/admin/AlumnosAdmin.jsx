@@ -27,7 +27,7 @@ const FORM_INICIAL = {
   password: '',
   semestre: '1',
   grupo: '',
-  turno: 'Matutino',
+  turno: 'matutino',
 }
 
 export default function AlumnosAdmin() {
@@ -494,11 +494,11 @@ export default function AlumnosAdmin() {
                         background: '#FFFFFF',
                       }}
                     >
-                      <option value="Matutino">
+                      <option value="matutino">
                         Matutino
                       </option>
 
-                      <option value="Vespertino">
+                      <option value="vespertino">
                         Vespertino
                       </option>
                     </select>
