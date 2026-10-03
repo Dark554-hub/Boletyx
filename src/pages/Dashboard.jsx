@@ -18,7 +18,7 @@ import AvisosDocente     from '../components/docente/AvisosDocente'
 
 // ── Administrador views
 import DatosAdmin from '../components/admin/DatosAdmin'
-
+import AlumnosAdmin from '../components/admin/AlumnosAdmin'
 
 const NAV_ALUMNO  = [
   { id: 'datos',      label: 'Mi Perfil' },
@@ -40,12 +40,24 @@ const NAV_ADMIN = [
   { id: 'matriculas', label: 'Matrículas' },
 ]
 
-const NAV_MAP = { alumno: NAV_ALUMNO, docente: NAV_DOCENTE, tutor: NAV_ADMIN }
+const NAV_MAP = {
+  alumno: NAV_ALUMNO,
+  docente: NAV_DOCENTE,
+  admin: NAV_ADMIN,
+}
 
 const SECTION_TITLES = {
-  datos: 'Mi Perfil', calif: 'Calificaciones', horario: 'Horario de Clases',
-  tramites: 'Trámites Escolares', calendario: 'Calendario Escolar',
-  asistencia: 'Asistencia', reportes: 'Reportes', avisos: 'Avisos Institucionales',
+  datos: 'Mi Perfil',
+  calif: 'Calificaciones',
+  horario: 'Horario de Clases',
+  tramites: 'Trámites Escolares',
+  calendario: 'Calendario Escolar',
+  asistencia: 'Asistencia',
+  reportes: 'Reportes',
+  avisos: 'Avisos Institucionales',
+
+  alumnos: 'Alumnos',
+  matriculas: 'Matrículas',
 }
 
 function renderView(role, activeSection, user) {
@@ -68,6 +80,10 @@ function renderView(role, activeSection, user) {
   if (role === 'admin') {
   if (activeSection === 'datos') {
     return <DatosAdmin user={user} />
+  }
+
+  if (activeSection === 'alumnos') {
+    return <AlumnosAdmin />
   }
 
   return <DatosAdmin user={user} />
