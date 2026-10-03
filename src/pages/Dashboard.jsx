@@ -19,6 +19,8 @@ import AvisosDocente     from '../components/docente/AvisosDocente'
 // ── Administrador views
 import DatosAdmin from '../components/admin/DatosAdmin'
 import AlumnosAdmin from '../components/admin/AlumnosAdmin'
+import InscripcionesAdmin from '../components/admin/InscripcionesAdmin'
+import MatriculasAdmin from '../components/admin/MatriculasAdmin'
 
 const NAV_ALUMNO  = [
   { id: 'datos',      label: 'Mi Perfil' },
@@ -35,8 +37,9 @@ const NAV_DOCENTE = [
   { id: 'avisos',     label: 'Avisos' },
 ]
 const NAV_ADMIN = [
-  { id: 'datos',      label: 'Panel' },
-  { id: 'alumnos',    label: 'Alumnos' },
+  { id: 'datos', label: 'Panel' },
+  { id: 'alumnos', label: 'Alumnos' },
+  { id: 'inscripciones', label: 'Inscripciones' },
   { id: 'matriculas', label: 'Matrículas' },
 ]
 
@@ -58,6 +61,7 @@ const SECTION_TITLES = {
 
   alumnos: 'Alumnos',
   matriculas: 'Matrículas',
+  inscripciones: 'Inscripciones',
 }
 
 function renderView(role, activeSection, user) {
@@ -86,9 +90,20 @@ function renderView(role, activeSection, user) {
     return <AlumnosAdmin />
   }
 
+  if (activeSection === 'inscripciones') {
+    return <InscripcionesAdmin />
+  }
+
+  if (activeSection === 'matriculas') {
+    return <MatriculasAdmin />
+  }
+
   return <DatosAdmin user={user} />
 }
+
+    return <DatosAdmin user={user} />
 }
+
 
 export default function Dashboard({ user, onLogout }) {
   const [activeSection, setActiveSection] = useState('datos')

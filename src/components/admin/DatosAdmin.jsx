@@ -30,89 +30,150 @@ export default function DatosAdmin({ user }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      setLoading(true)
-      setError('')
+    cargarDatos()
+  }, [])
 
-      try {
-        const [
-          alumnosResponse,
-          docentesResponse,
-          gruposResponse,
-        ] = await Promise.all([
-          supabase
-            .from('alumnos')
-            .select(`
-              id,
-              matricula,
-              semestre,
-              grupo,
-              turno,
-              perfiles (
-                nombre,
-                apellido
-              )
-            `)
-            .order('id'),
+  const cargarDatos = async () => {
+    setLoading(true)
+    setError('')
 
-          supabase
-            .from('docentes')
-            .select(`
-              id,
-              numero_empleado,
-              especialidad,
-              perfiles (
-                nombre,
-                apellido
-              )
-            `)
-            .order('id'),
+    try {
+      const [
+        alumnosResponse,
+        docentesResponse,
+        gruposResponse,
+      ] = await Promise.all([
+        supabase
+          .from('alumnos')
+          .select(`
+            id,
+            matricula,
+            semestre,
+            grupo,
+            turno,
 
-          supabase
-            .from('grupos')
-            .select(`
-              id,
+            perfiles (
               nombre,
-              ciclo_escolar,
+              apellido
+            ),
+
+            inscripciones (
+              id,
+
+              grupos (
+                id,
+                nombre,
+                semestre,
+                turno,
+                ciclo_escolar
+              )
+            )
+          `)
+          .order('id'),
+
+        supabase
+          .from('docentes')
+          .select(`
+            id,
+            numero_empleado,
+            especialidad,
+
+            perfiles (
+              nombre,
+              apellido
+            )
+          `)
+          .order('id'),
+
+        supabase
+          .from('grupos')
+          .select(`
+            id,
+            nombre,
+            semestre,
+            turno,
+            ciclo_escolar,
+
+            grupo_materias (
+              id,
+
               materias (
                 nombre
               ),
+
               docentes (
                 numero_empleado,
+
                 perfiles (
                   nombre,
                   apellido
                 )
               )
-            `)
-            .order('id'),
-        ])
+            )
+          `)
+          .order('nombre'),
+      ])
 
-        if (alumnosResponse.error) {
-          throw alumnosResponse.error
-        }
-
-        if (docentesResponse.error) {
-          throw docentesResponse.error
-        }
-
-        if (gruposResponse.error) {
-          throw gruposResponse.error
-        }
-
-        setAlumnos(alumnosResponse.data || [])
-        setDocentes(docentesResponse.data || [])
-        setGrupos(gruposResponse.data || [])
-      } catch (err) {
-        console.error('Error cargando panel admin:', err)
-        setError('No se pudieron cargar los datos administrativos.')
-      } finally {
-        setLoading(false)
+      if (alumnosResponse.error) {
+        throw alumnosResponse.error
       }
+
+      if (docentesResponse.error) {
+        throw docentesResponse.error
+      }
+
+      if (gruposResponse.error) {
+        throw gruposResponse.error
+      }
+
+      setAlumnos(alumnosResponse.data || [])
+      setDocentes(docentesResponse.data || [])
+      setGrupos(gruposResponse.data || [])
+    } catch (err) {
+      console.error(
+        'Error cargando panel admin:',
+        err
+      )
+
+      setError(
+        'No se pudieron cargar los datos administrativos.'
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const obtenerPerfil = registro => {
+    if (!registro?.perfiles) return null
+
+    return Array.isArray(registro.perfiles)
+      ? registro.perfiles[0]
+      : registro.perfiles
+  }
+
+  const obtenerGrupoActual = alumno => {
+    const inscripciones =
+      alumno?.inscripciones || []
+
+    if (inscripciones.length === 0) {
+      return null
     }
 
-    cargarDatos()
-  }, [])
+    const inscripcion = inscripciones[0]
+
+    return Array.isArray(inscripcion.grupos)
+      ? inscripcion.grupos[0]
+      : inscripcion.grupos
+  }
+
+  const formatearTurno = turno => {
+    if (!turno) return '—'
+
+    return (
+      turno.charAt(0).toUpperCase() +
+      turno.slice(1)
+    )
+  }
 
   if (loading) {
     return (
@@ -129,7 +190,9 @@ export default function DatosAdmin({ user }) {
     <div className="space-y-6">
       <PageHeader
         title="Panel de Administración"
-        subtitle={`Bienvenido, ${user?.nombre || 'Administrador'}`}
+        subtitle={`Bienvenido, ${
+          user?.nombre || 'Administrador'
+        }`}
         action={
           <Pill variant="blue">
             Control escolar
@@ -150,7 +213,6 @@ export default function DatosAdmin({ user }) {
         </div>
       )}
 
-      {/* Estadísticas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           icon={
@@ -192,12 +254,16 @@ export default function DatosAdmin({ user }) {
               style={{ color: '#203A50' }}
             />
           }
-          label="Registros académicos"
-          value={alumnos.length + docentes.length}
+          label="Asignaciones"
+          value={grupos.reduce(
+            (total, grupo) =>
+              total +
+              (grupo.grupo_materias?.length || 0),
+            0
+          )}
         />
       </div>
 
-      {/* Tabla de alumnos */}
       <Card>
         <CardHeader>
           <div>
@@ -206,7 +272,7 @@ export default function DatosAdmin({ user }) {
             </CardTitle>
 
             <CardSubtitle>
-              Información obtenida directamente desde Supabase
+              Grupo actual e información académica
             </CardSubtitle>
           </div>
 
@@ -227,9 +293,11 @@ export default function DatosAdmin({ user }) {
           rows={
             <>
               {alumnos.map((alumno, index) => {
-                const perfil = Array.isArray(alumno.perfiles)
-                  ? alumno.perfiles[0]
-                  : alumno.perfiles
+                const perfil =
+                  obtenerPerfil(alumno)
+
+                const grupo =
+                  obtenerGrupoActual(alumno)
 
                 const nombreCompleto = perfil
                   ? `${perfil.nombre} ${perfil.apellido}`
@@ -237,34 +305,34 @@ export default function DatosAdmin({ user }) {
 
                 return (
                   <TR key={alumno.id}>
-                    <TD
-                      style={{
-                        color: '#8FA0AF',
-                        fontSize: 12,
-                      }}
-                    >
-                      {index + 1}
-                    </TD>
+                    <TD>{index + 1}</TD>
 
                     <TD className="font-semibold">
                       {nombreCompleto}
                     </TD>
 
                     <TD>
-                      {alumno.matricula || 'Sin matrícula'}
+                      {alumno.matricula || '—'}
                     </TD>
 
                     <TD>
-                      {alumno.semestre ?? '—'}
+                      {grupo?.semestre ??
+                        alumno.semestre ??
+                        '—'}
                     </TD>
 
                     <TD>
-                      {alumno.grupo || '—'}
+                      {grupo?.nombre ||
+                        alumno.grupo ||
+                        '—'}
                     </TD>
 
                     <TD>
                       <Pill variant="default">
-                        {alumno.turno || 'Sin turno'}
+                        {formatearTurno(
+                          grupo?.turno ||
+                            alumno.turno
+                        )}
                       </Pill>
                     </TD>
                   </TR>
@@ -287,7 +355,6 @@ export default function DatosAdmin({ user }) {
         />
       </Card>
 
-      {/* Tabla de docentes */}
       <Card>
         <CardHeader>
           <div>
@@ -296,7 +363,7 @@ export default function DatosAdmin({ user }) {
             </CardTitle>
 
             <CardSubtitle>
-              Personal docente registrado en el sistema
+              Personal docente del sistema
             </CardSubtitle>
           </div>
 
@@ -314,67 +381,50 @@ export default function DatosAdmin({ user }) {
           ]}
           rows={
             <>
-              {docentes.map((docente, index) => {
-                const perfil = Array.isArray(docente.perfiles)
-                  ? docente.perfiles[0]
-                  : docente.perfiles
+              {docentes.map(
+                (docente, index) => {
+                  const perfil =
+                    obtenerPerfil(docente)
 
-                const nombreCompleto = perfil
-                  ? `${perfil.nombre} ${perfil.apellido}`
-                  : 'Sin nombre'
+                  const nombre = perfil
+                    ? `${perfil.nombre} ${perfil.apellido}`
+                    : 'Sin nombre'
 
-                return (
-                  <TR key={docente.id}>
-                    <TD
-                      style={{
-                        color: '#8FA0AF',
-                        fontSize: 12,
-                      }}
-                    >
-                      {index + 1}
-                    </TD>
+                  return (
+                    <TR key={docente.id}>
+                      <TD>{index + 1}</TD>
 
-                    <TD className="font-semibold">
-                      {nombreCompleto}
-                    </TD>
+                      <TD className="font-semibold">
+                        {nombre}
+                      </TD>
 
-                    <TD>
-                      {docente.numero_empleado || '—'}
-                    </TD>
+                      <TD>
+                        {docente.numero_empleado ||
+                          '—'}
+                      </TD>
 
-                    <TD>
-                      {docente.especialidad || '—'}
-                    </TD>
-                  </TR>
-                )
-              })}
-
-              {docentes.length === 0 && (
-                <tr>
-                  <td
-                    colSpan="4"
-                    className="px-4 py-8 text-center text-sm"
-                    style={{ color: '#8FA0AF' }}
-                  >
-                    No hay docentes registrados.
-                  </td>
-                </tr>
+                      <TD>
+                        {docente.especialidad ||
+                          '—'}
+                      </TD>
+                    </TR>
+                  )
+                }
               )}
             </>
           }
         />
       </Card>
 
-      {/* Resumen de grupos */}
       <Card>
         <CardHeader>
           <div>
             <CardTitle>
-              Grupos registrados
+              Grupos
             </CardTitle>
 
             <CardSubtitle>
-              Materias y docentes asignados actualmente
+              Grupos y materias asignadas
             </CardSubtitle>
           </div>
 
@@ -387,72 +437,42 @@ export default function DatosAdmin({ user }) {
           headers={[
             '#',
             'Grupo',
-            'Materia',
-            'Docente',
-            'Ciclo escolar',
+            'Semestre',
+            'Turno',
+            'Materias',
+            'Ciclo',
           ]}
           rows={
             <>
-              {grupos.map((grupo, index) => {
-                const materia = Array.isArray(grupo.materias)
-                  ? grupo.materias[0]
-                  : grupo.materias
+              {grupos.map((grupo, index) => (
+                <TR key={grupo.id}>
+                  <TD>{index + 1}</TD>
 
-                const docente = Array.isArray(grupo.docentes)
-                  ? grupo.docentes[0]
-                  : grupo.docentes
+                  <TD className="font-semibold">
+                    {grupo.nombre}
+                  </TD>
 
-                const perfilDocente = Array.isArray(docente?.perfiles)
-                  ? docente.perfiles[0]
-                  : docente?.perfiles
+                  <TD>
+                    {grupo.semestre ?? '—'}
+                  </TD>
 
-                const nombreDocente = perfilDocente
-                  ? `${perfilDocente.nombre} ${perfilDocente.apellido}`
-                  : 'Sin docente'
+                  <TD>
+                    {formatearTurno(
+                      grupo.turno
+                    )}
+                  </TD>
 
-                return (
-                  <TR key={grupo.id}>
-                    <TD
-                      style={{
-                        color: '#8FA0AF',
-                        fontSize: 12,
-                      }}
-                    >
-                      {index + 1}
-                    </TD>
+                  <TD>
+                    {grupo.grupo_materias
+                      ?.length || 0}
+                  </TD>
 
-                    <TD className="font-semibold">
-                      {grupo.nombre}
-                    </TD>
-
-                    <TD>
-                      {materia?.nombre || 'Sin materia'}
-                    </TD>
-
-                    <TD>
-                      {nombreDocente}
-                    </TD>
-
-                    <TD>
-                      <Pill variant="blue">
-                        {grupo.ciclo_escolar || 'Sin ciclo'}
-                      </Pill>
-                    </TD>
-                  </TR>
-                )
-              })}
-
-              {grupos.length === 0 && (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-4 py-8 text-center text-sm"
-                    style={{ color: '#8FA0AF' }}
-                  >
-                    No hay grupos registrados.
-                  </td>
-                </tr>
-              )}
+                  <TD>
+                    {grupo.ciclo_escolar ||
+                      '—'}
+                  </TD>
+                </TR>
+              ))}
             </>
           }
         />

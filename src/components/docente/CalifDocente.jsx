@@ -38,8 +38,9 @@ function calcularPromedio(p1, p2, p3) {
 }
 
 export default function CalifDocente({ user }) {
-  const [grupos, setGrupos] = useState([])
-  const [activeGrupo, setActiveGrupo] = useState(null)
+  const [asignaciones, setAsignaciones] = useState([])
+  const [activeAsignacion, setActiveAsignacion] = useState(null)
+
   const [editingId, setEditingId] = useState(null)
 
   const [loading, setLoading] = useState(true)
@@ -49,7 +50,7 @@ export default function CalifDocente({ user }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const cargarGrupos = async () => {
+    const cargarAsignaciones = async () => {
       if (!user?.docente_id) {
         setError('No se encontró el identificador del docente.')
         setLoading(false)
@@ -59,154 +60,281 @@ export default function CalifDocente({ user }) {
       setLoading(true)
       setError('')
 
-      const { data, error: queryError } = await supabase
-        .from('grupos')
-        .select(`
-          id,
-          nombre,
-          ciclo_escolar,
-
-          materias (
+      try {
+        const {
+          data,
+          error: queryError,
+        } = await supabase
+          .from('grupo_materias')
+          .select(`
             id,
-            nombre
-          ),
+            grupo_id,
+            materia_id,
 
-          inscripciones (
-            id,
-
-            alumnos (
+            grupos (
               id,
-              matricula,
+              nombre,
+              semestre,
+              turno,
+              ciclo_escolar,
 
-              perfiles (
-                nombre,
-                apellido
+              inscripciones (
+                id,
+
+                alumnos (
+                  id,
+                  matricula,
+
+                  perfiles (
+                    nombre,
+                    apellido
+                  )
+                ),
+
+                calificaciones (
+                  id,
+                  grupo_materia_id,
+                  parcial_1,
+                  parcial_2,
+                  parcial_3,
+                  promedio
+                )
               )
             ),
 
-            calificaciones (
+            materias (
               id,
-              parcial_1,
-              parcial_2,
-              parcial_3,
-              promedio
+              nombre
             )
-          )
-        `)
-        .eq('docente_id', user.docente_id)
-        .order('id')
+          `)
+          .eq('docente_id', user.docente_id)
+          .order('id')
 
-      if (queryError) {
-        console.error(queryError)
-        setError('No se pudieron cargar los grupos del docente.')
-        setLoading(false)
-        return
-      }
+        if (queryError) {
+          throw queryError
+        }
 
-      const gruposFormateados = (data || []).map(g => ({
-        id: g.id,
-        grupo: g.nombre,
-        materia: g.materias?.nombre || 'Sin materia',
-        ciclo: g.ciclo_escolar || 'Sin ciclo',
+        const asignacionesFormateadas = (data || []).map(
+          asignacion => {
+            const grupo = Array.isArray(asignacion.grupos)
+              ? asignacion.grupos[0]
+              : asignacion.grupos
 
-        alumnos: (g.inscripciones || []).map(inscripcion => {
-          const calificacion = Array.isArray(inscripcion.calificaciones)
-            ? inscripcion.calificaciones[0]
-            : inscripcion.calificaciones
+            const materia = Array.isArray(asignacion.materias)
+              ? asignacion.materias[0]
+              : asignacion.materias
 
-          const p1 = Number(calificacion?.parcial_1 ?? 0)
-          const p2 = Number(calificacion?.parcial_2 ?? 0)
-          const p3 = Number(calificacion?.parcial_3 ?? 0)
+            const alumnos = (grupo?.inscripciones || []).map(
+              inscripcion => {
+                const alumno = Array.isArray(inscripcion.alumnos)
+                  ? inscripcion.alumnos[0]
+                  : inscripcion.alumnos
 
-          const promedio =
-            calificacion?.promedio != null
-              ? Number(calificacion.promedio)
-              : calcularPromedio(p1, p2, p3)
+                const perfil = Array.isArray(alumno?.perfiles)
+                  ? alumno.perfiles[0]
+                  : alumno?.perfiles
 
-          const perfil = inscripcion.alumnos?.perfiles
+                const calificaciones =
+                  inscripcion.calificaciones || []
 
-          return {
-            id: inscripcion.alumnos?.id,
-            inscripcion_id: inscripcion.id,
-            calificacion_id: calificacion?.id ?? null,
+                const calificacion =
+                  calificaciones.find(
+                    c =>
+                      Number(c.grupo_materia_id) ===
+                      Number(asignacion.id)
+                  )
 
-            nombre: perfil
-              ? `${perfil.nombre} ${perfil.apellido}`
-              : 'Alumno sin nombre',
+                const p1 = Number(
+                  calificacion?.parcial_1 ?? 0
+                )
 
-            matricula:
-              inscripcion.alumnos?.matricula || 'Sin matrícula',
+                const p2 = Number(
+                  calificacion?.parcial_2 ?? 0
+                )
 
-            p1,
-            p2,
-            p3,
-            promedio,
+                const p3 = Number(
+                  calificacion?.parcial_3 ?? 0
+                )
+
+                const promedio =
+                  calificacion?.promedio != null
+                    ? Number(calificacion.promedio)
+                    : calcularPromedio(p1, p2, p3)
+
+                return {
+                  id: alumno?.id,
+
+                  inscripcion_id:
+                    inscripcion.id,
+
+                  calificacion_id:
+                    calificacion?.id ?? null,
+
+                  grupo_materia_id:
+                    asignacion.id,
+
+                  nombre: perfil
+                    ? `${perfil.nombre} ${perfil.apellido}`
+                    : 'Alumno sin nombre',
+
+                  matricula:
+                    alumno?.matricula ||
+                    'Sin matrícula',
+
+                  p1,
+                  p2,
+                  p3,
+
+                  promedio,
+                }
+              }
+            )
+
+            return {
+              id: asignacion.id,
+
+              grupo_id:
+                asignacion.grupo_id,
+
+              materia_id:
+                asignacion.materia_id,
+
+              grupo:
+                grupo?.nombre ||
+                'Sin grupo',
+
+              semestre:
+                grupo?.semestre ?? null,
+
+              turno:
+                grupo?.turno || null,
+
+              ciclo:
+                grupo?.ciclo_escolar ||
+                'Sin ciclo',
+
+              materia:
+                materia?.nombre ||
+                'Sin materia',
+
+              alumnos,
+            }
           }
-        }),
-      }))
+        )
 
-      setGrupos(gruposFormateados)
+        setAsignaciones(asignacionesFormateadas)
 
-      if (gruposFormateados.length > 0) {
-        setActiveGrupo(gruposFormateados[0].id)
+        if (asignacionesFormateadas.length > 0) {
+          setActiveAsignacion(
+            asignacionesFormateadas[0].id
+          )
+        }
+      } catch (err) {
+        console.error(
+          'Error cargando asignaciones del docente:',
+          err
+        )
+
+        setError(
+          'No se pudieron cargar los grupos y materias del docente.'
+        )
+      } finally {
+        setLoading(false)
       }
-
-      setLoading(false)
     }
 
-    cargarGrupos()
+    cargarAsignaciones()
   }, [user?.docente_id])
 
-  const grupo =
-    grupos.find(g => g.id === activeGrupo) || grupos[0]
+  const asignacion =
+    asignaciones.find(
+      a => a.id === activeAsignacion
+    ) || asignaciones[0]
 
-  const actualizarCalificacionLocal = (alumnoId, campo, valor) => {
+  const actualizarCalificacionLocal = (
+    alumnoId,
+    campo,
+    valor
+  ) => {
     let numero = Number(valor)
 
-    if (Number.isNaN(numero)) numero = 0
+    if (Number.isNaN(numero)) {
+      numero = 0
+    }
 
-    numero = Math.max(0, Math.min(10, numero))
+    numero = Math.max(
+      0,
+      Math.min(10, numero)
+    )
 
-    setGrupos(prev =>
-      prev.map(g => ({
-        ...g,
+    setAsignaciones(prev =>
+      prev.map(a => {
+        if (
+          a.id !==
+          asignacion?.id
+        ) {
+          return a
+        }
 
-        alumnos: g.alumnos.map(al => {
-          if (al.id !== alumnoId) return al
+        return {
+          ...a,
 
-          const actualizado = {
-            ...al,
-            [campo]: numero,
-          }
+          alumnos: a.alumnos.map(al => {
+            if (al.id !== alumnoId) {
+              return al
+            }
 
-          actualizado.promedio = calcularPromedio(
-            actualizado.p1,
-            actualizado.p2,
-            actualizado.p3
-          )
+            const actualizado = {
+              ...al,
+              [campo]: numero,
+            }
 
-          return actualizado
-        }),
-      }))
+            actualizado.promedio =
+              calcularPromedio(
+                actualizado.p1,
+                actualizado.p2,
+                actualizado.p3
+              )
+
+            return actualizado
+          }),
+        }
+      })
     )
   }
 
   const handleSave = async () => {
-    if (!grupo) return
+    if (!asignacion) return
 
     setSaving(true)
     setError('')
     setSaved(false)
 
     try {
-      for (const alumno of grupo.alumnos) {
+      for (const alumno of asignacion.alumnos) {
         const datos = {
-          inscripcion_id: alumno.inscripcion_id,
-          parcial_1: alumno.p1,
-          parcial_2: alumno.p2,
-          parcial_3: alumno.p3,
-          promedio: Number(alumno.promedio.toFixed(2)),
-          updated_at: new Date().toISOString(),
+          inscripcion_id:
+            alumno.inscripcion_id,
+
+          grupo_materia_id:
+            alumno.grupo_materia_id,
+
+          parcial_1:
+            alumno.p1,
+
+          parcial_2:
+            alumno.p2,
+
+          parcial_3:
+            alumno.p3,
+
+          promedio:
+            Number(
+              alumno.promedio.toFixed(2)
+            ),
+
+          updated_at:
+            new Date().toISOString(),
         }
 
         let query
@@ -215,16 +343,23 @@ export default function CalifDocente({ user }) {
           query = supabase
             .from('calificaciones')
             .update(datos)
-            .eq('id', alumno.calificacion_id)
+            .eq(
+              'id',
+              alumno.calificacion_id
+            )
         } else {
           query = supabase
             .from('calificaciones')
             .insert(datos)
         }
 
-        const { error: saveError } = await query
+        const {
+          error: saveError,
+        } = await query
 
-        if (saveError) throw saveError
+        if (saveError) {
+          throw saveError
+        }
       }
 
       setSaved(true)
@@ -234,8 +369,14 @@ export default function CalifDocente({ user }) {
         setSaved(false)
       }, 3000)
     } catch (err) {
-      console.error(err)
-      setError('Ocurrió un error al guardar las calificaciones.')
+      console.error(
+        'Error guardando calificaciones:',
+        err
+      )
+
+      setError(
+        'Ocurrió un error al guardar las calificaciones.'
+      )
     } finally {
       setSaving(false)
     }
@@ -243,110 +384,180 @@ export default function CalifDocente({ user }) {
 
   if (loading) {
     return (
-      <div className="p-6 text-sm" style={{ color: '#506070' }}>
+      <div
+        className="p-6 text-sm"
+        style={{
+          color: '#506070',
+        }}
+      >
         Cargando grupos...
       </div>
     )
   }
 
-  if (error && grupos.length === 0) {
+  if (
+    error &&
+    asignaciones.length === 0
+  ) {
     return (
-      <div className="p-6 text-sm" style={{ color: '#dc2626' }}>
+      <div
+        className="p-6 text-sm"
+        style={{
+          color: '#dc2626',
+        }}
+      >
         {error}
       </div>
     )
   }
 
-  if (!grupo) {
+  if (!asignacion) {
     return (
-      <div className="p-6 text-sm" style={{ color: '#506070' }}>
-        Sin grupos asignados.
+      <div
+        className="p-6 text-sm"
+        style={{
+          color: '#506070',
+        }}
+      >
+        No tienes materias asignadas.
       </div>
     )
   }
 
   const promGrupo =
-    grupo.alumnos.length > 0
+    asignacion.alumnos.length > 0
       ? (
-          grupo.alumnos.reduce(
-            (total, alumno) => total + alumno.promedio,
+          asignacion.alumnos.reduce(
+            (
+              total,
+              alumno
+            ) =>
+              total +
+              alumno.promedio,
             0
-          ) / grupo.alumnos.length
+          ) /
+          asignacion.alumnos.length
         ).toFixed(1)
       : '0.0'
 
-  const aprobados = grupo.alumnos.filter(
-    alumno => alumno.promedio >= 6
-  ).length
+  const aprobados =
+    asignacion.alumnos.filter(
+      alumno =>
+        alumno.promedio >= 6
+    ).length
 
-  const enRiesgo = grupo.alumnos.length - aprobados
+  const enRiesgo =
+    asignacion.alumnos.length -
+    aprobados
+
+  const formatearTurno = turno => {
+    if (!turno) return 'Sin turno'
+
+    return (
+      turno.charAt(0).toUpperCase() +
+      turno.slice(1)
+    )
+  }
 
   return (
     <div className="space-y-5">
       <PageHeader
         title="Calificaciones"
-        subtitle="Captura y consulta las calificaciones de tus grupos"
+        subtitle="Captura y consulta las calificaciones de tus materias"
         action={
           <Pill variant="blue">
-            Ciclo {grupo.ciclo}
+            Ciclo {asignacion.ciclo}
           </Pill>
         }
       />
 
-      {/* Selector de grupos */}
+      {/* Selector de asignaciones */}
       <div className="flex flex-wrap gap-2">
-        {grupos.map(g => (
+        {asignaciones.map(a => (
           <button
-            key={g.id}
+            key={a.id}
             onClick={() => {
-              setActiveGrupo(g.id)
+              setActiveAsignacion(a.id)
               setEditingId(null)
             }}
             className="px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer"
             style={{
               border:
-                activeGrupo === g.id
+                activeAsignacion === a.id
                   ? '1.5px solid #203A50'
                   : '1.5px solid #DDE4ED',
 
               background:
-                activeGrupo === g.id
+                activeAsignacion === a.id
                   ? '#203A50'
                   : '#FFFFFF',
 
               color:
-                activeGrupo === g.id
+                activeAsignacion === a.id
                   ? '#FFFFFF'
                   : '#506070',
             }}
           >
-            {g.grupo} · {g.materia}
+            {a.grupo} · {a.materia}
           </button>
         ))}
       </div>
 
-      {/* Mensaje guardado */}
+      {/* Información */}
+      <div
+        className="px-4 py-3 rounded-xl text-xs"
+        style={{
+          background: '#F4F7FA',
+          border: '1px solid #DDE4ED',
+          color: '#506070',
+        }}
+      >
+        Grupo{' '}
+        <strong>
+          {asignacion.grupo}
+        </strong>
+        {' · '}
+        Semestre{' '}
+        <strong>
+          {asignacion.semestre ?? '—'}
+        </strong>
+        {' · '}
+        Turno{' '}
+        <strong>
+          {formatearTurno(
+            asignacion.turno
+          )}
+        </strong>
+        {' · '}
+        Materia{' '}
+        <strong>
+          {asignacion.materia}
+        </strong>
+      </div>
+
       {saved && (
         <div
           className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold"
           style={{
             background: '#dcfce7',
-            border: '1px solid #86efac',
+            border:
+              '1px solid #86efac',
             color: '#166534',
           }}
         >
           <IconCheck size={16} />
+
           Calificaciones guardadas correctamente.
         </div>
       )}
 
-      {/* Error */}
       {error && (
         <div
           className="px-4 py-3 rounded-xl text-sm font-semibold"
           style={{
             background: '#fee2e2',
-            border: '1px solid #fca5a5',
+            border:
+              '1px solid #fca5a5',
             color: '#991b1b',
           }}
         >
@@ -354,17 +565,20 @@ export default function CalifDocente({ user }) {
         </div>
       )}
 
-      {/* Estadísticas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           icon={
             <IconUsers
               size={22}
-              style={{ color: '#203A50' }}
+              style={{
+                color: '#203A50',
+              }}
             />
           }
           label="Alumnos"
-          value={grupo.alumnos.length}
+          value={
+            asignacion.alumnos.length
+          }
         />
 
         <StatCard
@@ -372,20 +586,28 @@ export default function CalifDocente({ user }) {
             <IconGrade
               size={22}
               style={{
-                color: gradeColor(Number(promGrupo)),
+                color: gradeColor(
+                  Number(
+                    promGrupo
+                  )
+                ),
               }}
             />
           }
           label="Promedio del grupo"
           value={promGrupo}
-          valueColor={gradeColor(Number(promGrupo))}
+          valueColor={gradeColor(
+            Number(promGrupo)
+          )}
         />
 
         <StatCard
           icon={
             <IconCheck
               size={22}
-              style={{ color: '#16a34a' }}
+              style={{
+                color: '#16a34a',
+              }}
             />
           }
           label="Aprobados"
@@ -397,7 +619,9 @@ export default function CalifDocente({ user }) {
           icon={
             <IconAlert
               size={22}
-              style={{ color: '#dc2626' }}
+              style={{
+                color: '#dc2626',
+              }}
             />
           }
           label="En riesgo"
@@ -406,12 +630,13 @@ export default function CalifDocente({ user }) {
         />
       </div>
 
-      {/* Tabla */}
       <Card>
         <CardHeader>
           <div>
             <CardTitle>
-              {grupo.grupo} — {grupo.materia}
+              {asignacion.grupo}
+              {' — '}
+              {asignacion.materia}
             </CardTitle>
 
             <CardSubtitle>
@@ -441,8 +666,10 @@ export default function CalifDocente({ user }) {
             <thead>
               <tr
                 style={{
-                  background: '#F4F7FA',
-                  borderBottom: '1px solid #DDE4ED',
+                  background:
+                    '#F4F7FA',
+                  borderBottom:
+                    '1px solid #DDE4ED',
                 }}
               >
                 <th
@@ -459,7 +686,8 @@ export default function CalifDocente({ user }) {
                   className="text-left px-4 py-3 text-[11px] font-black uppercase tracking-wider"
                   style={{
                     color: '#8FA0AF',
-                    minWidth: '190px',
+                    minWidth:
+                      '190px',
                   }}
                 >
                   Alumno
@@ -469,21 +697,30 @@ export default function CalifDocente({ user }) {
                   className="text-left px-4 py-3 text-[11px] font-black uppercase tracking-wider"
                   style={{
                     color: '#8FA0AF',
-                    minWidth: '140px',
+                    minWidth:
+                      '140px',
                   }}
                 >
                   Matrícula
                 </th>
 
-                {['P1', 'P2', 'P3'].map(p => (
+                {[
+                  'P1',
+                  'P2',
+                  'P3',
+                ].map(p => (
                   <th
                     key={p}
                     className="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-center"
                     style={{
-                      color: '#8FA0AF',
-                      width: '90px',
-                      minWidth: '90px',
-                      borderLeft: '1px solid #DDE4ED',
+                      color:
+                        '#8FA0AF',
+                      width:
+                        '90px',
+                      minWidth:
+                        '90px',
+                      borderLeft:
+                        '1px solid #DDE4ED',
                     }}
                   >
                     {p}
@@ -494,8 +731,10 @@ export default function CalifDocente({ user }) {
                   className="px-5 py-3 text-[11px] font-black uppercase tracking-wider text-left"
                   style={{
                     color: '#8FA0AF',
-                    minWidth: '200px',
-                    borderLeft: '1px solid #DDE4ED',
+                    minWidth:
+                      '200px',
+                    borderLeft:
+                      '1px solid #DDE4ED',
                   }}
                 >
                   Promedio
@@ -505,9 +744,12 @@ export default function CalifDocente({ user }) {
                   className="px-4 py-3 text-[11px] font-black uppercase tracking-wider text-center"
                   style={{
                     color: '#8FA0AF',
-                    width: '150px',
-                    minWidth: '150px',
-                    borderLeft: '1px solid #DDE4ED',
+                    width:
+                      '150px',
+                    minWidth:
+                      '150px',
+                    borderLeft:
+                      '1px solid #DDE4ED',
                   }}
                 >
                   Estado
@@ -516,10 +758,13 @@ export default function CalifDocente({ user }) {
                 <th
                   className="px-4 py-3 text-[11px] font-black uppercase tracking-wider text-center"
                   style={{
-                    width: '140px',
-                    minWidth: '140px',
-                    borderLeft: '1px solid #DDE4ED',
                     color: '#8FA0AF',
+                    width:
+                      '140px',
+                    minWidth:
+                      '140px',
+                    borderLeft:
+                      '1px solid #DDE4ED',
                   }}
                 >
                   Acción
@@ -528,170 +773,220 @@ export default function CalifDocente({ user }) {
             </thead>
 
             <tbody>
-              {grupo.alumnos.map((al, idx) => (
-                <tr
-                  key={al.id}
-                  className="border-b transition-colors"
-                  style={{
-                    borderColor: '#DDE4ED',
-                  }}
-                  onMouseEnter={e =>
-                    (e.currentTarget.style.background = '#F4F7FA')
-                  }
-                  onMouseLeave={e =>
-                    (e.currentTarget.style.background = 'transparent')
-                  }
-                >
-                  {/* Número */}
-                  <td
-                    className="px-4 py-4"
+              {asignacion.alumnos.map(
+                (al, idx) => (
+                  <tr
+                    key={
+                      `${asignacion.id}-${al.id}`
+                    }
+                    className="border-b transition-colors"
                     style={{
-                      color: '#8FA0AF',
-                      fontSize: 12,
+                      borderColor:
+                        '#DDE4ED',
                     }}
+                    onMouseEnter={e =>
+                      (
+                        e.currentTarget
+                          .style
+                          .background
+                      ) =
+                        '#F4F7FA'
+                    }
+                    onMouseLeave={e =>
+                      (
+                        e.currentTarget
+                          .style
+                          .background
+                      ) =
+                        'transparent'
+                    }
                   >
-                    {idx + 1}
-                  </td>
-
-                  {/* Alumno */}
-                  <td
-                    className="px-4 py-4 font-semibold"
-                    style={{
-                      color: '#0F1E2B',
-                    }}
-                  >
-                    {al.nombre}
-                  </td>
-
-                  {/* Matrícula */}
-                  <td
-                    className="px-4 py-4 text-xs"
-                    style={{
-                      color: '#8FA0AF',
-                    }}
-                  >
-                    {al.matricula}
-                  </td>
-
-                  {/* P1, P2 y P3 */}
-                  {['p1', 'p2', 'p3'].map(p => (
                     <td
-                      key={p}
-                      className="px-3 py-4 text-center"
+                      className="px-4 py-4"
                       style={{
-                        width: '90px',
-                        minWidth: '90px',
-                        borderLeft: '1px solid #DDE4ED',
+                        color:
+                          '#8FA0AF',
+                        fontSize:
+                          12,
                       }}
                     >
-                      {editingId === al.id ? (
-                        <input
-                          type="number"
-                          min="0"
-                          max="10"
-                          step="0.1"
-                          value={al[p]}
-                          onChange={e =>
-                            actualizarCalificacionLocal(
-                              al.id,
-                              p,
-                              e.target.value
-                            )
-                          }
-                          className="w-16 text-center px-2 py-1.5 rounded-lg outline-none font-bold"
-                          style={{
-                            border: '1.5px solid #203A50',
-                            color: '#0F1E2B',
-                            background: '#FFFFFF',
-                          }}
-                        />
-                      ) : (
-                        <span
-                          className="font-bold tabular-nums"
-                          style={{
-                            color: gradeColor(al[p]),
-                          }}
-                        >
-                          {al[p]}
-                        </span>
-                      )}
+                      {idx + 1}
                     </td>
-                  ))}
 
-                  {/* Promedio */}
-                  <td
-                    className="px-5 py-4"
-                    style={{
-                      minWidth: '200px',
-                      borderLeft: '1px solid #DDE4ED',
-                    }}
-                  >
-                    <GradeBar value={al.promedio} />
-                  </td>
-
-                  {/* Estado */}
-                  <td
-                    className="px-4 py-4 text-center"
-                    style={{
-                      minWidth: '150px',
-                      borderLeft: '1px solid #DDE4ED',
-                    }}
-                  >
-                    <Pill
-                      variant={
-                        al.promedio >= 6
-                          ? 'success'
-                          : 'danger'
-                      }
+                    <td
+                      className="px-4 py-4 font-semibold"
+                      style={{
+                        color:
+                          '#0F1E2B',
+                      }}
                     >
-                      {al.promedio >= 6
-                        ? 'Aprobado'
-                        : 'Reprobado'}
-                    </Pill>
-                  </td>
+                      {al.nombre}
+                    </td>
 
-                  {/* Editar */}
-                  <td
-                    className="px-4 py-4"
-                    style={{
-                      minWidth: '140px',
-                      borderLeft: '1px solid #DDE4ED',
-                    }}
-                  >
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() =>
-                          setEditingId(
-                            editingId === al.id
-                              ? null
-                              : al.id
-                          )
-                        }
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer"
+                    <td
+                      className="px-4 py-4 text-xs"
+                      style={{
+                        color:
+                          '#8FA0AF',
+                      }}
+                    >
+                      {al.matricula}
+                    </td>
+
+                    {[
+                      'p1',
+                      'p2',
+                      'p3',
+                    ].map(p => (
+                      <td
+                        key={p}
+                        className="px-3 py-4 text-center"
                         style={{
-                          background: '#F4F7FA',
-                          border: '1px solid #DDE4ED',
-                          color: '#203A50',
+                          width:
+                            '90px',
+                          minWidth:
+                            '90px',
+                          borderLeft:
+                            '1px solid #DDE4ED',
                         }}
                       >
-                        <IconEdit size={13} />
+                        {editingId ===
+                        al.id ? (
+                          <input
+                            type="number"
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={
+                              al[p]
+                            }
+                            onChange={e =>
+                              actualizarCalificacionLocal(
+                                al.id,
+                                p,
+                                e.target
+                                  .value
+                              )
+                            }
+                            className="w-16 text-center px-2 py-1.5 rounded-lg outline-none font-bold"
+                            style={{
+                              border:
+                                '1.5px solid #203A50',
+                              color:
+                                '#0F1E2B',
+                              background:
+                                '#FFFFFF',
+                            }}
+                          />
+                        ) : (
+                          <span
+                            className="font-bold tabular-nums"
+                            style={{
+                              color:
+                                gradeColor(
+                                  al[p]
+                                ),
+                            }}
+                          >
+                            {al[p]}
+                          </span>
+                        )}
+                      </td>
+                    ))}
 
-                        {editingId === al.id
-                          ? 'Listo'
-                          : 'Editar'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    <td
+                      className="px-5 py-4"
+                      style={{
+                        minWidth:
+                          '200px',
+                        borderLeft:
+                          '1px solid #DDE4ED',
+                      }}
+                    >
+                      <GradeBar
+                        value={
+                          al.promedio
+                        }
+                      />
+                    </td>
 
-              {grupo.alumnos.length === 0 && (
+                    <td
+                      className="px-4 py-4 text-center"
+                      style={{
+                        minWidth:
+                          '150px',
+                        borderLeft:
+                          '1px solid #DDE4ED',
+                      }}
+                    >
+                      <Pill
+                        variant={
+                          al.promedio >= 6
+                            ? 'success'
+                            : 'danger'
+                        }
+                      >
+                        {al.promedio >= 6
+                          ? 'Aprobado'
+                          : 'Reprobado'}
+                      </Pill>
+                    </td>
+
+                    <td
+                      className="px-4 py-4"
+                      style={{
+                        minWidth:
+                          '140px',
+                        borderLeft:
+                          '1px solid #DDE4ED',
+                      }}
+                    >
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() =>
+                            setEditingId(
+                              editingId ===
+                                al.id
+                                ? null
+                                : al.id
+                            )
+                          }
+                          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer"
+                          style={{
+                            background:
+                              '#F4F7FA',
+                            border:
+                              '1px solid #DDE4ED',
+                            color:
+                              '#203A50',
+                          }}
+                        >
+                          <IconEdit
+                            size={
+                              13
+                            }
+                          />
+
+                          {editingId ===
+                          al.id
+                            ? 'Listo'
+                            : 'Editar'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              )}
+
+              {asignacion.alumnos
+                .length === 0 && (
                 <tr>
                   <td
                     colSpan="9"
                     className="px-4 py-8 text-center text-sm"
                     style={{
-                      color: '#8FA0AF',
+                      color:
+                        '#8FA0AF',
                     }}
                   >
                     No hay alumnos inscritos en este grupo.
