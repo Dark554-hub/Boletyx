@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './index.css'
 import RoleSelector from './pages/RoleSelector'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
