@@ -21,6 +21,7 @@ import DatosAdmin from '../components/admin/DatosAdmin'
 import AlumnosAdmin from '../components/admin/AlumnosAdmin'
 import InscripcionesAdmin from '../components/admin/InscripcionesAdmin'
 import MatriculasAdmin from '../components/admin/MatriculasAdmin'
+import AcademicoAdmin from '../components/admin/AcademicoAdmin'
 
 const NAV_ALUMNO  = [
   { id: 'datos',      label: 'Mi Perfil' },
@@ -40,6 +41,7 @@ const NAV_ADMIN = [
   { id: 'datos', label: 'Panel' },
   { id: 'alumnos', label: 'Alumnos' },
   { id: 'inscripciones', label: 'Inscripciones' },
+  { id: 'academico', label: 'Académico' },
   { id: 'matriculas', label: 'Matrículas' },
 ]
 
@@ -58,6 +60,7 @@ const SECTION_TITLES = {
   asistencia: 'Asistencia',
   reportes: 'Reportes',
   avisos: 'Avisos Institucionales',
+  academico: 'Gestión Académica',
 
   alumnos: 'Alumnos',
   matriculas: 'Matrículas',
@@ -93,10 +96,14 @@ function renderView(role, activeSection, user) {
   if (activeSection === 'inscripciones') {
     return <InscripcionesAdmin />
   }
+  if (activeSection === 'academico') {
+  return <AcademicoAdmin />
+  }
 
   if (activeSection === 'matriculas') {
     return <MatriculasAdmin />
   }
+  
 
   return <DatosAdmin user={user} />
 }
