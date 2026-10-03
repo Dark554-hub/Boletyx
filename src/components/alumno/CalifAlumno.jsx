@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
 import { supabase } from '../../lib/supabase'
 
 import {
@@ -19,14 +20,47 @@ import {
   IconCheck,
 } from '../Icons'
 
+
+// ==================================================
+// COLORES
+// ==================================================
+
 function gradeColor(p) {
+  if (p === null || p === undefined) {
+    return '#8FA0AF'
+  }
+
   if (p >= 9) return '#16a34a'
   if (p >= 7) return '#ca8a04'
+  if (p >= 6) return '#f59e0b'
+
   return '#dc2626'
 }
 
+
+// ==================================================
+// ESTADO DE CALIFICACIÓN
+// ==================================================
+
 function GradeState({ p }) {
-  if (p >= 9) {
+
+  if (
+    p === null ||
+    p === undefined ||
+    !Number.isFinite(Number(p))
+  ) {
+    return (
+      <Pill variant="default">
+        Sin evaluar
+      </Pill>
+    )
+  }
+
+
+  const promedio = Number(p)
+
+
+  if (promedio >= 9) {
     return (
       <Pill variant="success">
         Excelente
@@ -34,13 +68,24 @@ function GradeState({ p }) {
     )
   }
 
-  if (p >= 6) {
+
+  if (promedio >= 7) {
     return (
       <Pill variant="warning">
         Regular
       </Pill>
     )
   }
+
+
+  if (promedio >= 6) {
+    return (
+      <Pill variant="warning">
+        En riesgo
+      </Pill>
+    )
+  }
+
 
   return (
     <Pill variant="danger">
@@ -49,12 +94,88 @@ function GradeState({ p }) {
   )
 }
 
-function calcularPromedio(p1, p2, p3) {
-  return (p1 + p2 + p3) / 3
+
+// ==================================================
+// CONVERTIR CALIFICACIÓN
+// ==================================================
+
+function convertirCalificacion(valor) {
+
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ''
+  ) {
+    return null
+  }
+
+
+  const numero = Number(valor)
+
+
+  return Number.isFinite(numero)
+    ? numero
+    : null
 }
 
+
+// ==================================================
+// CALCULAR PROMEDIO
+// ==================================================
+
+function calcularPromedio(parciales) {
+
+  const validos =
+    parciales.filter(
+      parcial =>
+        Number.isFinite(parcial)
+    )
+
+
+  if (validos.length === 0) {
+    return null
+  }
+
+
+  const suma =
+    validos.reduce(
+      (total, parcial) =>
+        total + parcial,
+      0
+    )
+
+
+  return suma / validos.length
+}
+
+
+// ==================================================
+// MOSTRAR CALIFICACIÓN
+// ==================================================
+
+function mostrarCalificacion(valor) {
+
+  if (
+    valor === null ||
+    valor === undefined ||
+    !Number.isFinite(Number(valor))
+  ) {
+    return '—'
+  }
+
+
+  return Number(valor).toFixed(1)
+}
+
+
+// ==================================================
+// COMPONENTE
+// ==================================================
+
 export default function CalifAlumno({ user }) {
-  const [materias, setMaterias] = useState([])
+
+  const [materias, setMaterias] =
+    useState([])
 
   const [grupoActual, setGrupoActual] =
     useState(null)
@@ -65,249 +186,427 @@ export default function CalifAlumno({ user }) {
   const [error, setError] =
     useState('')
 
+
+  // ==================================================
+  // CARGAR CALIFICACIONES
+  // ==================================================
+
   useEffect(() => {
-    const cargarCalificaciones = async () => {
-      if (!user?.alumno_id) {
-        setError(
-          'No se encontró el identificador del alumno.'
-        )
 
-        setLoading(false)
-        return
-      }
+    const cargarCalificaciones =
+      async () => {
 
-      setLoading(true)
-      setError('')
+        if (!user?.alumno_id) {
 
-      try {
-        const {
-          data: inscripciones,
-          error: inscripcionesError,
-        } = await supabase
-          .from('inscripciones')
-          .select(`
-            id,
-
-            grupos (
-              id,
-              nombre,
-              semestre,
-              turno,
-              ciclo_escolar,
-
-              grupo_materias (
-                id,
-
-                materias (
-                  id,
-                  nombre
-                ),
-
-                docentes (
-                  id,
-
-                  perfiles (
-                    nombre,
-                    apellido
-                  )
-                )
-              )
-            ),
-
-            calificaciones (
-              id,
-              grupo_materia_id,
-              parcial_1,
-              parcial_2,
-              parcial_3,
-              promedio
-            )
-          `)
-          .eq(
-            'alumno_id',
-            user.alumno_id
+          setError(
+            'No se encontró el identificador del alumno.'
           )
 
-        if (inscripcionesError) {
-          throw inscripcionesError
+          setLoading(false)
+
+          return
         }
 
-        const materiasFormateadas = []
 
-        let grupoEncontrado = null
+        setLoading(true)
+        setError('')
 
-        for (
-          const inscripcion of
-            inscripciones || []
-        ) {
-          const grupo =
-            Array.isArray(
-              inscripcion.grupos
+
+        try {
+
+          const {
+            data: inscripciones,
+            error: inscripcionesError,
+          } = await supabase
+            .from('inscripciones')
+            .select(`
+              id,
+
+              grupos (
+                id,
+                nombre,
+                semestre,
+                turno,
+                ciclo_escolar,
+
+                grupo_materias (
+                  id,
+
+                  materias (
+                    id,
+                    nombre
+                  ),
+
+                  docentes (
+                    id,
+
+                    perfiles (
+                      nombre,
+                      apellido
+                    )
+                  )
+                )
+              ),
+
+              calificaciones (
+                id,
+                grupo_materia_id,
+                parcial_1,
+                parcial_2,
+                parcial_3,
+                promedio
+              )
+            `)
+            .eq(
+              'alumno_id',
+              user.alumno_id
             )
-              ? inscripcion.grupos[0]
-              : inscripcion.grupos
 
-          if (!grupo) continue
 
-          if (!grupoEncontrado) {
-            grupoEncontrado = grupo
+          if (inscripcionesError) {
+            throw inscripcionesError
           }
 
-          const asignaciones =
-            grupo.grupo_materias || []
 
-          const calificaciones =
-            inscripcion.calificaciones || []
+          const materiasFormateadas = []
+
+          let grupoEncontrado = null
+
+
+          // ============================================
+          // RECORRER INSCRIPCIONES
+          // ============================================
 
           for (
-            const asignacion of
-              asignaciones
+            const inscripcion of
+              inscripciones || []
           ) {
-            const materia =
+
+            const grupo =
               Array.isArray(
-                asignacion.materias
+                inscripcion.grupos
               )
-                ? asignacion.materias[0]
-                : asignacion.materias
+                ? inscripcion.grupos[0]
+                : inscripcion.grupos
 
-            const docente =
-              Array.isArray(
-                asignacion.docentes
-              )
-                ? asignacion.docentes[0]
-                : asignacion.docentes
 
-            const perfilDocente =
-              Array.isArray(
-                docente?.perfiles
-              )
-                ? docente.perfiles[0]
-                : docente?.perfiles
+            if (!grupo) {
+              continue
+            }
 
-            const calificacion =
-              calificaciones.find(
-                c =>
-                  Number(
-                    c.grupo_materia_id
-                  ) ===
-                  Number(
-                    asignacion.id
-                  )
-              )
 
-            const p1 =
-              Number(
-                calificacion
-                  ?.parcial_1 ?? 0
-              )
+            if (!grupoEncontrado) {
+              grupoEncontrado = grupo
+            }
 
-            const p2 =
-              Number(
-                calificacion
-                  ?.parcial_2 ?? 0
-              )
 
-            const p3 =
-              Number(
-                calificacion
-                  ?.parcial_3 ?? 0
-              )
+            const asignaciones =
+              grupo.grupo_materias || []
 
-            const promedio =
-              calificacion?.promedio != null
-                ? Number(
-                    calificacion.promedio
-                  )
-                : calcularPromedio(
-                    p1,
-                    p2,
-                    p3
-                  )
 
-            materiasFormateadas.push({
-              id: asignacion.id,
+            const calificaciones =
+              inscripcion.calificaciones || []
 
-              grupo_materia_id:
-                asignacion.id,
 
-              nombre:
-                materia?.nombre ||
-                'Sin materia',
+            // ==========================================
+            // RECORRER MATERIAS
+            // ==========================================
 
-              docente:
-                perfilDocente
-                  ? `${perfilDocente.nombre} ${perfilDocente.apellido}`
-                  : 'Sin docente',
+            for (
+              const asignacion of
+                asignaciones
+            ) {
 
-              calificaciones: [
+              const materia =
+                Array.isArray(
+                  asignacion.materias
+                )
+                  ? asignacion.materias[0]
+                  : asignacion.materias
+
+
+              const docente =
+                Array.isArray(
+                  asignacion.docentes
+                )
+                  ? asignacion.docentes[0]
+                  : asignacion.docentes
+
+
+              const perfilDocente =
+                Array.isArray(
+                  docente?.perfiles
+                )
+                  ? docente.perfiles[0]
+                  : docente?.perfiles
+
+
+              // ========================================
+              // BUSCAR CALIFICACIÓN DE ESTA MATERIA
+              // ========================================
+
+              const calificacion =
+                calificaciones.find(
+                  c =>
+                    Number(
+                      c.grupo_materia_id
+                    ) ===
+                    Number(
+                      asignacion.id
+                    )
+                )
+
+
+              // ========================================
+              // PARCIALES
+              // ========================================
+
+              const p1 =
+                convertirCalificacion(
+                  calificacion?.parcial_1
+                )
+
+
+              const p2 =
+                convertirCalificacion(
+                  calificacion?.parcial_2
+                )
+
+
+              const p3 =
+                convertirCalificacion(
+                  calificacion?.parcial_3
+                )
+
+
+              const parciales = [
                 p1,
                 p2,
                 p3,
-              ],
+              ]
 
-              promedio,
-            })
+
+              // ========================================
+              // PROMEDIO
+              // ========================================
+
+              const promedioGuardado =
+                convertirCalificacion(
+                  calificacion?.promedio
+                )
+
+
+              /*
+                Si Supabase ya tiene un promedio,
+                usamos ese valor.
+
+                Si todavía no existe promedio,
+                calculamos únicamente con los
+                parciales que ya fueron capturados.
+
+                Ejemplo:
+
+                P1 = 9
+                P2 = null
+                P3 = null
+
+                Promedio temporal = 9
+
+                NO:
+                (9 + 0 + 0) / 3
+              */
+
+              const promedio =
+                promedioGuardado !== null
+                  ? promedioGuardado
+                  : calcularPromedio(
+                      parciales
+                    )
+
+
+              // ========================================
+              // NOMBRE DEL DOCENTE
+              // ========================================
+
+              const nombreDocente =
+                perfilDocente
+                  ? [
+                      perfilDocente.nombre,
+                      perfilDocente.apellido,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')
+                  : 'Sin docente'
+
+
+              // ========================================
+              // AGREGAR MATERIA
+              // ========================================
+
+              materiasFormateadas.push({
+
+                id:
+                  asignacion.id,
+
+                grupo_materia_id:
+                  asignacion.id,
+
+                nombre:
+                  materia?.nombre ||
+                  'Sin materia',
+
+                docente:
+                  nombreDocente,
+
+                calificaciones:
+                  parciales,
+
+                promedio,
+              })
+            }
           }
+
+
+          setGrupoActual(
+            grupoEncontrado
+          )
+
+
+          setMaterias(
+            materiasFormateadas
+          )
+
+        } catch (err) {
+
+          console.error(
+            'Error cargando calificaciones:',
+            err
+          )
+
+
+          setError(
+            err?.message ||
+            'No se pudieron cargar las calificaciones.'
+          )
+
+        } finally {
+
+          setLoading(false)
         }
-
-        setGrupoActual(
-          grupoEncontrado
-        )
-
-        setMaterias(
-          materiasFormateadas
-        )
-      } catch (err) {
-        console.error(
-          'Error cargando calificaciones:',
-          err
-        )
-
-        setError(
-          'No se pudieron cargar las calificaciones.'
-        )
-      } finally {
-        setLoading(false)
       }
-    }
+
 
     cargarCalificaciones()
+
   }, [user?.alumno_id])
 
+
+  // ==================================================
+  // MATERIAS EVALUADAS
+  // ==================================================
+
+  const materiasEvaluadas =
+    useMemo(() => {
+
+      return materias.filter(
+        materia =>
+          Number.isFinite(
+            materia.promedio
+          )
+      )
+
+    }, [materias])
+
+
+  // ==================================================
+  // PROMEDIO GENERAL
+  // ==================================================
+
   const promedioGeneral =
-    materias.length > 0
-      ? (
-          materias.reduce(
-            (
-              total,
-              materia
-            ) =>
-              total +
-              materia.promedio,
-            0
-          ) / materias.length
-        ).toFixed(2)
-      : '0.00'
+    useMemo(() => {
+
+      if (
+        materiasEvaluadas.length === 0
+      ) {
+        return null
+      }
+
+
+      const suma =
+        materiasEvaluadas.reduce(
+          (total, materia) =>
+            total +
+            materia.promedio,
+          0
+        )
+
+
+      return (
+        suma /
+        materiasEvaluadas.length
+      )
+
+    }, [materiasEvaluadas])
+
+
+  // ==================================================
+  // APROBADAS
+  // ==================================================
 
   const aprobadas =
-    materias.filter(
-      materia =>
-        materia.promedio >= 6
-    ).length
+    useMemo(() => {
+
+      return materiasEvaluadas.filter(
+        materia =>
+          materia.promedio >= 6
+      ).length
+
+    }, [materiasEvaluadas])
+
+
+  // ==================================================
+  // EN RIESGO
+  // ==================================================
+
+  /*
+    Una materia está "en riesgo" cuando
+    sigue aprobada, pero tiene un promedio
+    entre 6.0 y 6.9.
+  */
 
   const enRiesgo =
-    materias.filter(
-      materia =>
-        materia.promedio < 6
-    ).length
+    useMemo(() => {
+
+      return materiasEvaluadas.filter(
+        materia =>
+          materia.promedio >= 6 &&
+          materia.promedio < 7
+      ).length
+
+    }, [materiasEvaluadas])
+
+
+  // ==================================================
+  // EXCELENCIA
+  // ==================================================
 
   const excelencia =
-    materias.filter(
-      materia =>
-        materia.promedio >= 9
-    ).length
+    useMemo(() => {
+
+      return materiasEvaluadas.filter(
+        materia =>
+          materia.promedio >= 9
+      ).length
+
+    }, [materiasEvaluadas])
+
+
+  // ==================================================
+  // LOADING
+  // ==================================================
 
   if (loading) {
+
     return (
       <div
         className="p-6 text-sm"
@@ -320,7 +619,13 @@ export default function CalifAlumno({ user }) {
     )
   }
 
+
+  // ==================================================
+  // ERROR
+  // ==================================================
+
   if (error) {
+
     return (
       <div
         className="p-6 text-sm"
@@ -333,15 +638,36 @@ export default function CalifAlumno({ user }) {
     )
   }
 
+
+  // ==================================================
+  // RENDER
+  // ==================================================
+
   return (
+
     <div className="space-y-5">
+
+      {/* HEADER */}
+
       <PageHeader
+
         title="Calificaciones"
+
         subtitle={
           grupoActual
-            ? `${grupoActual.nombre} · ${grupoActual.semestre || user.semestre || '—'}° Semestre · Ciclo ${grupoActual.ciclo_escolar || '—'}`
+
+            ? `${grupoActual.nombre} · ${
+                grupoActual.semestre ||
+                user.semestre ||
+                '—'
+              }° Semestre · Ciclo ${
+                grupoActual.ciclo_escolar ||
+                '—'
+              }`
+
             : `${user.semestre || '—'}° Semestre`
         }
+
         action={
           <Pill variant="blue">
             P1 · P2 · P3
@@ -349,8 +675,17 @@ export default function CalifAlumno({ user }) {
         }
       />
 
+
+      {/* ============================================
+          ESTADÍSTICAS
+      ============================================ */}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
+        {/* PROMEDIO */}
+
         <StatCard
+
           icon={
             <IconGrade
               size={22}
@@ -359,16 +694,29 @@ export default function CalifAlumno({ user }) {
               }}
             />
           }
+
           label="Promedio general"
-          value={promedioGeneral}
-          valueColor={gradeColor(
-            Number(
-              promedioGeneral
-            )
-          )}
+
+          value={
+            promedioGeneral !== null
+              ? promedioGeneral.toFixed(2)
+              : '—'
+          }
+
+          valueColor={
+            promedioGeneral !== null
+              ? gradeColor(
+                  promedioGeneral
+                )
+              : '#8FA0AF'
+          }
         />
 
+
+        {/* APROBADAS */}
+
         <StatCard
+
           icon={
             <IconCheck
               size={22}
@@ -377,26 +725,40 @@ export default function CalifAlumno({ user }) {
               }}
             />
           }
+
           label="Aprobadas"
+
           value={aprobadas}
+
           valueColor="#16a34a"
         />
 
+
+        {/* RIESGO */}
+
         <StatCard
+
           icon={
             <IconAlert
               size={22}
               style={{
-                color: '#dc2626',
+                color: '#f59e0b',
               }}
             />
           }
+
           label="En riesgo"
+
           value={enRiesgo}
-          valueColor="#dc2626"
+
+          valueColor="#f59e0b"
         />
 
+
+        {/* EXCELENCIA */}
+
         <StatCard
+
           icon={
             <IconStar
               size={22}
@@ -405,41 +767,69 @@ export default function CalifAlumno({ user }) {
               }}
             />
           }
+
           label="Excelencia"
+
           value={excelencia}
+
           valueColor="#ca8a04"
         />
+
       </div>
 
+
+      {/* ============================================
+          TABLA
+      ============================================ */}
+
       <Card>
+
         <CardHeader>
+
           <div>
+
             <CardTitle>
               Detalle por materia
             </CardTitle>
 
+
             <CardSubtitle>
               Parciales P1 · P2 · P3
             </CardSubtitle>
+
           </div>
+
 
           <Pill variant="default">
             {materias.length}{' '}
-            materias
+            {materias.length === 1
+              ? 'materia'
+              : 'materias'}
           </Pill>
+
         </CardHeader>
 
+
         <div className="overflow-x-auto">
+
           <table className="w-full text-sm border-collapse">
+
+            {/* ========================================
+                ENCABEZADO
+            ======================================== */}
+
             <thead>
+
               <tr
                 style={{
                   background:
                     '#F4F7FA',
+
                   borderBottom:
                     '1px solid #DDE4ED',
                 }}
               >
+
                 <th
                   className="text-left px-4 py-3 text-[11px] font-black uppercase tracking-wider"
                   style={{
@@ -449,6 +839,7 @@ export default function CalifAlumno({ user }) {
                 >
                   Materia
                 </th>
+
 
                 <th
                   className="text-left px-4 py-3 text-[11px] font-black uppercase tracking-wider"
@@ -460,31 +851,47 @@ export default function CalifAlumno({ user }) {
                   Docente
                 </th>
 
+
                 {[
                   'P1',
                   'P2',
                   'P3',
-                ].map(p => (
-                  <th
-                    key={p}
-                    className="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-center"
-                    style={{
-                      color:
-                        '#8FA0AF',
-                      width: '90px',
-                      borderLeft:
-                        '1px solid #DDE4ED',
-                    }}
-                  >
-                    {p}
-                  </th>
-                ))}
+                ].map(
+                  parcial => (
+
+                    <th
+                      key={parcial}
+
+                      className="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-center"
+
+                      style={{
+                        color:
+                          '#8FA0AF',
+
+                        width:
+                          '90px',
+
+                        borderLeft:
+                          '1px solid #DDE4ED',
+                      }}
+                    >
+                      {parcial}
+                    </th>
+
+                  )
+                )}
+
 
                 <th
                   className="px-5 py-3 text-[11px] font-black uppercase tracking-wider"
+
                   style={{
-                    color: '#8FA0AF',
-                    minWidth: '190px',
+                    color:
+                      '#8FA0AF',
+
+                    minWidth:
+                      '190px',
+
                     borderLeft:
                       '1px solid #DDE4ED',
                   }}
@@ -492,49 +899,72 @@ export default function CalifAlumno({ user }) {
                   Promedio
                 </th>
 
+
                 <th
                   className="px-4 py-3 text-[11px] font-black uppercase tracking-wider text-center"
+
                   style={{
-                    color: '#8FA0AF',
-                    width: '140px',
+                    color:
+                      '#8FA0AF',
+
+                    width:
+                      '140px',
+
                     borderLeft:
                       '1px solid #DDE4ED',
                   }}
                 >
                   Estado
                 </th>
+
               </tr>
+
             </thead>
 
+
+            {/* ========================================
+                CUERPO
+            ======================================== */}
+
             <tbody>
+
               {materias.map(
                 materia => (
+
                   <tr
                     key={materia.id}
+
                     className="border-b transition-colors"
+
                     style={{
                       borderColor:
                         '#DDE4ED',
                     }}
-                    onMouseEnter={e =>
-                      (
+
+                    onMouseEnter={
+                      e => {
                         e.currentTarget
                           .style
-                          .background
-                      ) =
-                        '#F4F7FA'
+                          .background =
+                          '#F4F7FA'
+                      }
                     }
-                    onMouseLeave={e =>
-                      (
+
+                    onMouseLeave={
+                      e => {
                         e.currentTarget
                           .style
-                          .background
-                      ) =
-                        'transparent'
+                          .background =
+                          'transparent'
+                      }
                     }
                   >
+
+                    {/* MATERIA */}
+
                     <td
                       className="px-4 py-4 font-semibold"
+
                       style={{
                         color:
                           '#0F1E2B',
@@ -543,8 +973,12 @@ export default function CalifAlumno({ user }) {
                       {materia.nombre}
                     </td>
 
+
+                    {/* DOCENTE */}
+
                     <td
                       className="px-4 py-4 text-xs"
+
                       style={{
                         color:
                           '#8FA0AF',
@@ -553,91 +987,156 @@ export default function CalifAlumno({ user }) {
                       {materia.docente}
                     </td>
 
+
+                    {/* PARCIALES */}
+
                     {materia.calificaciones.map(
                       (
                         calificacion,
                         index
                       ) => (
+
                         <td
                           key={index}
+
                           className="px-3 py-4 text-center"
+
                           style={{
                             width:
                               '90px',
+
                             borderLeft:
                               '1px solid #DDE4ED',
                           }}
                         >
+
                           <span
                             className="font-bold tabular-nums"
+
                             style={{
                               color:
-                                gradeColor(
-                                  calificacion
-                                ),
+                                calificacion ===
+                                null
+
+                                  ? '#8FA0AF'
+
+                                  : gradeColor(
+                                      calificacion
+                                    ),
                             }}
                           >
-                            {
+                            {mostrarCalificacion(
                               calificacion
-                            }
+                            )}
                           </span>
+
                         </td>
+
                       )
                     )}
 
+
+                    {/* PROMEDIO */}
+
                     <td
                       className="px-5 py-4"
+
                       style={{
                         minWidth:
                           '190px',
+
                         borderLeft:
                           '1px solid #DDE4ED',
                       }}
                     >
-                      <GradeBar
-                        value={
-                          materia.promedio
-                        }
-                      />
+
+                      {materia.promedio !==
+                      null ? (
+
+                        <GradeBar
+                          value={
+                            materia.promedio
+                          }
+                        />
+
+                      ) : (
+
+                        <span
+                          style={{
+                            color:
+                              '#8FA0AF',
+
+                            fontSize:
+                              '12px',
+
+                            fontWeight:
+                              600,
+                          }}
+                        >
+                          Sin evaluar
+                        </span>
+
+                      )}
+
                     </td>
+
+
+                    {/* ESTADO */}
 
                     <td
                       className="px-4 py-4 text-center"
+
                       style={{
                         borderLeft:
                           '1px solid #DDE4ED',
                       }}
                     >
+
                       <GradeState
                         p={
                           materia.promedio
                         }
                       />
+
                     </td>
+
                   </tr>
+
                 )
               )}
 
+
+              {/* SIN MATERIAS */}
+
               {materias.length === 0 && (
+
                 <tr>
+
                   <td
                     colSpan="7"
+
                     className="px-4 py-10 text-center text-sm"
+
                     style={{
                       color:
                         '#8FA0AF',
                     }}
                   >
-                    No hay materias
-                    disponibles para este
-                    alumno.
+                    No hay materias disponibles para este alumno.
                   </td>
+
                 </tr>
+
               )}
+
             </tbody>
+
           </table>
+
         </div>
+
       </Card>
+
     </div>
   )
 }
