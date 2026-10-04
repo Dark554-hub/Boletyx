@@ -48,6 +48,8 @@ import MatriculasAdmin from '../components/admin/MatriculasAdmin'
 
 import AcademicoAdmin from '../components/admin/AcademicoAdmin'
 
+import CiclosAdmin from '../components/admin/CiclosAdmin'
+
 
 
 // ── Tutor views
@@ -135,6 +137,8 @@ const NAV_ADMIN = [
   { id: 'academico', label: 'Académico' },
 
   { id: 'matriculas', label: 'Matrículas' },
+
+  { id: 'ciclos', label: 'Ciclos' },
 
 ]
 
@@ -241,6 +245,8 @@ const SECTION_TITLES = {
   alumnos: 'Alumnos',
 
   matriculas: 'Matrículas',
+
+  ciclos: 'Ciclos Escolares',
 
   inscripciones: 'Inscripciones',
 
@@ -523,6 +529,20 @@ function renderView(
     ) {
 
       return <MatriculasAdmin />
+
+    }
+
+
+
+    if (
+
+      activeSection ===
+
+      'ciclos'
+
+    ) {
+
+      return <CiclosAdmin />
 
     }
 
