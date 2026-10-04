@@ -70,6 +70,33 @@ export const USERS = [
     avatar: 'MS',
     hijosIds: ['ALU002'],
   },
+  // Aspirantes
+  {
+    id: 'ASP001',
+    role: 'aspirante',
+    nombre: 'Aspirante Demo',
+    email: 'aspirante.demo@boletyx.edu',
+    password: '1234',
+    avatar: 'AD',
+  },
+  // Administrativos
+  {
+    id: 'ADM001',
+    role: 'administrativo',
+    nombre: 'Administrativo Demo',
+    email: 'admin.demo@boletyx.edu',
+    password: '1234',
+    avatar: 'AD',
+  },
+  // Coordinadores
+  {
+    id: 'COR001',
+    role: 'coordinador',
+    nombre: 'Coordinador Demo',
+    email: 'coord.demo@boletyx.edu',
+    password: '1234',
+    avatar: 'CD',
+  },
 ];
 
 export const MATERIAS_ALUMNO = {

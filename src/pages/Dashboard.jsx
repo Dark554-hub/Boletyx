@@ -23,6 +23,11 @@ import CalifTutor      from '../components/tutor/CalifTutor'
 import CalendarioTutor from '../components/tutor/CalendarioTutor'
 import TramitesTutor   from '../components/tutor/TramitesTutor'
 
+// ── Nuevos módulos
+import DatosAspirante from '../components/aspirante/DatosAspirante'
+import DatosAdministrativo from '../components/administrativo/DatosAdministrativo'
+import DatosCoordinador from '../components/coordinador/DatosCoordinador'
+
 const NAV_ALUMNO  = [
   { id: 'datos',      label: 'Mi Perfil' },
   { id: 'calif',      label: 'Calificaciones' },
@@ -44,7 +49,23 @@ const NAV_TUTOR = [
   { id: 'tramites',   label: 'Trámites' },
   { id: 'calendario', label: 'Calendario' },
 ]
-const NAV_MAP = { alumno: NAV_ALUMNO, docente: NAV_DOCENTE, tutor: NAV_TUTOR }
+const NAV_ASPIRANTE = [
+  { id: 'datos', label: 'Proceso de Admisión' },
+]
+const NAV_ADMINISTRATIVO = [
+  { id: 'datos', label: 'Gestión Administrativa' },
+]
+const NAV_COORDINADOR = [
+  { id: 'datos', label: 'Supervisión' },
+]
+const NAV_MAP = { 
+  alumno: NAV_ALUMNO, 
+  docente: NAV_DOCENTE, 
+  tutor: NAV_TUTOR,
+  aspirante: NAV_ASPIRANTE,
+  administrativo: NAV_ADMINISTRATIVO,
+  coordinador: NAV_COORDINADOR
+}
 
 const SECTION_TITLES = {
   datos: 'Mi Perfil', calif: 'Calificaciones', horario: 'Horario de Clases',
@@ -76,6 +97,15 @@ function renderView(role, activeSection, user) {
     if (activeSection === 'tramites')   return <TramitesTutor />
     if (activeSection === 'calendario') return <CalendarioTutor />
     return <DatosTutor user={user} />
+  }
+  if (role === 'aspirante') {
+    return <DatosAspirante user={user} />
+  }
+  if (role === 'administrativo') {
+    return <DatosAdministrativo user={user} />
+  }
+  if (role === 'coordinador') {
+    return <DatosCoordinador user={user} />
   }
 }
 

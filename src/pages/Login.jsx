@@ -6,12 +6,18 @@ const ROLE_LABELS = {
   alumno:  'Alumno',
   docente: 'Docente',
   tutor:   'Tutor / Padre de familia',
+  aspirante: 'Aspirante',
+  administrativo: 'Administrativo',
+  coordinador: 'Jefes/Coordinadores',
 }
 
 const DEMO = {
   alumno:  'emilio.garcia@boletyx.edu',
   docente: 'r.hernandez@boletyx.edu',
   tutor:   'carlos.garcia@gmail.com',
+  aspirante: 'aspirante.demo@boletyx.edu',
+  administrativo: 'admin.demo@boletyx.edu',
+  coordinador: 'coord.demo@boletyx.edu',
 }
 
 export default function Login({ role, onLogin, onBack }) {

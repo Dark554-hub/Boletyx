@@ -37,6 +37,41 @@ const ROLES = [
     name: 'Tutor',
     desc: 'Supervisa el desempeño académico de tu hijo/a',
   },
+  {
+    id: 'aspirante',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="11" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/>
+        <line x1="22" y1="11" x2="16" y2="11"/>
+      </svg>
+    ),
+    name: 'Aspirante',
+    desc: 'Consulta tu proceso de admisión y resultados',
+  },
+  {
+    id: 'administrativo',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+    ),
+    name: 'Administrativo',
+    desc: 'Gestiona trámites, pagos y expedientes',
+  },
+  {
+    id: 'coordinador',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+    name: 'Jefes/Coordinadores',
+    desc: 'Supervisa el área académica y administrativa',
+  },
 ]
 
 export default function RoleSelector({ onSelect }) {
