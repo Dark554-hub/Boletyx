@@ -21,6 +21,7 @@ const ROLES = [
     name: 'Alumno',
     desc: 'Consulta calificaciones, horario, trámites y eventos escolares',
   },
+
   {
     id: 'docente',
     icon: (
@@ -41,6 +42,76 @@ const ROLES = [
     ),
     name: 'Docente',
     desc: 'Gestiona calificaciones, asistencia y reportes de tus grupos',
+  },
+
+  {
+    id: 'tutor',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-10 h-10"
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M19 8v6" />
+        <path d="M16 11h6" />
+      </svg>
+    ),
+    name: 'Tutor',
+    desc: 'Consulta información académica y seguimiento del alumno',
+  },
+
+  {
+    id: 'aspirante',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-10 h-10"
+      >
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        <path d="M8 7h8" />
+        <path d="M8 11h6" />
+      </svg>
+    ),
+    name: 'Aspirante',
+    desc: 'Consulta tu proceso de admisión, documentos y pagos',
+  },
+
+  {
+    id: 'coordinador',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-10 h-10"
+      >
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <path d="M3 10h18" />
+        <path d="M8 14h2" />
+        <path d="M14 14h2" />
+        <path d="M8 17h2" />
+        <path d="M14 17h2" />
+      </svg>
+    ),
+    name: 'Coordinador',
+    desc: 'Supervisa grupos, docentes y seguimiento académico',
   },
 ]
 
@@ -136,12 +207,7 @@ export default function RoleSelector({ onSelect }) {
 
       {/* Cards */}
       <div
-        className={[
-          'grid grid-cols-1 gap-4 w-full',
-          rolesVisibles.length === 3
-            ? 'sm:grid-cols-3 max-w-2xl'
-            : 'sm:grid-cols-2 max-w-lg',
-        ].join(' ')}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl"
       >
         {rolesVisibles.map(role => {
           const isSelected = selected === role.id
