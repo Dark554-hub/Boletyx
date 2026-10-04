@@ -108,28 +108,22 @@ export default function RoleSelector({ onSelect }) {
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-4xl px-2">
         {ROLES.map((role) => {
-          const isSelected = selected === role.id
           return (
             <button
               key={role.id}
-              onClick={() => setSelected(role.id)}
+              onClick={() => onSelect(role.id)}
               className={[
                 'group flex flex-col items-center text-center px-6 py-8 rounded-3xl border cursor-pointer',
-                'transition-all duration-200 ease-out backdrop-blur-sm text-left',
-                isSelected
-                  ? 'border-[#CEEEC3] shadow-[0_0_0_2px_#CEEEC3,0_16px_48px_rgba(0,0,0,.3)]'
-                  : 'border-white/10 hover:border-[#CEEEC3]/40 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,.3)]',
+                'transition-all duration-300 ease-out backdrop-blur-sm text-left',
+                'border-white/10 hover:border-[#CEEEC3]/60 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,.4)]',
               ].join(' ')}
               style={{
-                background: isSelected ? 'rgba(206,238,195,0.12)' : 'rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.06)',
               }}
             >
               {/* Icon circle */}
-              <div className={[
-                'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-200',
-                isSelected ? 'bg-[#CEEEC3]/20' : 'bg-white/8 group-hover:bg-white/12',
-              ].join(' ')}
-                style={{ color: isSelected ? '#CEEEC3' : 'rgba(255,255,255,0.65)' }}
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-300 bg-white/8 group-hover:bg-[#CEEEC3]/20 group-hover:text-[#CEEEC3]"
+                style={{ color: 'rgba(255,255,255,0.65)' }}
               >
                 {role.icon}
               </div>
@@ -142,24 +136,6 @@ export default function RoleSelector({ onSelect }) {
           )
         })}
       </div>
-
-      {/* CTA */}
-      <button
-        disabled={!selected}
-        onClick={() => onSelect(selected)}
-        className={[
-          'mt-10 inline-flex items-center gap-2.5 px-10 py-3.5 rounded-xl text-sm font-bold',
-          'transition-all duration-200',
-          selected
-            ? 'bg-[#CEEEC3] text-[#203A50] hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(206,238,195,.35)] cursor-pointer'
-            : 'bg-[#CEEEC3]/30 text-[#203A50]/50 cursor-not-allowed',
-        ].join(' ')}
-      >
-        Continuar
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </button>
     </div>
   )
 }
