@@ -40,7 +40,7 @@ export default function Login({ role, onLogin, onBack }) {
       style={{ background: 'linear-gradient(145deg, #152938 0%, #203A50 45%, #1a3040 100%)' }}
     >
       {/* Card */}
-      <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl p-10 animate-fade-up">
+      <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl p-6 sm:p-10 animate-fade-up">
 
         {/* Brand */}
         <div className="flex flex-col items-center gap-3 mb-8">

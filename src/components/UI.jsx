@@ -102,8 +102,8 @@ export function GradeBar({ value, max = 10 }) {
 /** Table wrapper */
 export function DataTable({ headers, rows }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm border-collapse">
+    <div className="overflow-x-auto w-full">
+      <table className="w-full text-sm border-collapse min-w-[600px]">
         <thead>
           <tr style={{ background: '#F4F7FA', borderBottom: '1px solid #DDE4ED' }}>
             {headers.map((h, i) => (
@@ -188,22 +188,22 @@ export function BtnOutline({ children, onClick, type = 'button', className = '' 
 /** Hero profile banner */
 export function ProfileHero({ avatar, name, sub, tag, right }) {
   return (
-    <div className="flex items-center gap-5 p-6 rounded-2xl mb-6 border"
+    <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 p-6 rounded-2xl mb-6 border"
       style={{
         background: 'linear-gradient(135deg,#152938 0%,#203A50 100%)',
         borderColor: 'rgba(206,238,195,.15)',
       }}>
       {/* Avatar */}
-      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shrink-0"
+      <div className="w-16 h-16 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl font-black shrink-0 mx-auto sm:mx-0"
         style={{ background: 'rgba(206,238,195,.18)', color: '#CEEEC3', border: '2px solid rgba(206,238,195,.25)' }}>
         {avatar}
       </div>
-      <div className="flex-1 min-w-0">
-        <h2 className="text-xl font-black text-white leading-tight truncate"
+      <div className="flex-1 min-w-0 w-full">
+        <h2 className="text-xl sm:text-2xl font-black text-white leading-tight truncate"
           style={{ letterSpacing: '-0.04em' }}>
           {name}
         </h2>
-        <p className="text-[13px] mt-0.5 truncate" style={{ color: 'rgba(255,255,255,.6)' }}>{sub}</p>
+        <p className="text-[13px] mt-1 sm:mt-0.5 truncate whitespace-normal sm:whitespace-nowrap" style={{ color: 'rgba(255,255,255,.6)' }}>{sub}</p>
         {tag && (
           <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase"
             style={{ background: 'rgba(206,238,195,.18)', color: '#CEEEC3' }}>
@@ -211,7 +211,7 @@ export function ProfileHero({ avatar, name, sub, tag, right }) {
           </span>
         )}
       </div>
-      {right && <div className="shrink-0">{right}</div>}
+      {right && <div className="shrink-0 mt-3 sm:mt-0">{right}</div>}
     </div>
   )
 }

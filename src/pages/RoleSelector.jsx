@@ -106,7 +106,7 @@ export default function RoleSelector({ onSelect }) {
       </p>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-4xl px-2">
         {ROLES.map((role) => {
           const isSelected = selected === role.id
           return (
