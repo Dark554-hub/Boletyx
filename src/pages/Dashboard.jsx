@@ -30,6 +30,15 @@ import HorarioTutor from '../components/tutor/HorarioTutor'
 import TramitesTutor from '../components/tutor/TramitesTutor'
 import CalendarioTutor from '../components/tutor/CalendarioTutor'
 
+// ── Aspirante views
+import DatosAspirante from '../components/aspirante/DatosAspirante'
+import DocumentosAspirante from '../components/aspirante/DocumentosAspirante'
+import PagosAspirante from '../components/aspirante/PagosAspirante'
+
+// ======================================================
+// NAVEGACIÓN
+// ======================================================
+
 const NAV_ALUMNO = [
   { id: 'datos', label: 'Mi Perfil' },
   { id: 'calif', label: 'Calificaciones' },
@@ -54,8 +63,6 @@ const NAV_ADMIN = [
   { id: 'matriculas', label: 'Matrículas' },
 ]
 
-// Tutor conserva una navegación similar a la del alumno,
-// pero utiliza sus propios componentes.
 const NAV_TUTOR = [
   { id: 'datos', label: 'Mi Perfil' },
   { id: 'calif', label: 'Calificaciones' },
@@ -64,12 +71,23 @@ const NAV_TUTOR = [
   { id: 'calendario', label: 'Calendario' },
 ]
 
+const NAV_ASPIRANTE = [
+  { id: 'datos', label: 'Proceso de Admisión' },
+  { id: 'documentos', label: 'Documentos' },
+  { id: 'pagos', label: 'Pagos' },
+]
+
 const NAV_MAP = {
   alumno: NAV_ALUMNO,
   docente: NAV_DOCENTE,
   admin: NAV_ADMIN,
   tutor: NAV_TUTOR,
+  aspirante: NAV_ASPIRANTE,
 }
+
+// ======================================================
+// TÍTULOS
+// ======================================================
 
 const SECTION_TITLES = {
   datos: 'Mi Perfil',
@@ -84,7 +102,13 @@ const SECTION_TITLES = {
   alumnos: 'Alumnos',
   matriculas: 'Matrículas',
   inscripciones: 'Inscripciones',
+  documentos: 'Documentos',
+  pagos: 'Pagos',
 }
+
+// ======================================================
+// VISTAS
+// ======================================================
 
 function renderView(role, activeSection, user) {
   // ── Alumno
@@ -181,36 +205,82 @@ function renderView(role, activeSection, user) {
     }
 
     if (activeSection === 'calendario') {
-      return <CalendarioTutor user={user} />
+      return <CalendarioTutor />
     }
 
     return <DatosTutor user={user} />
   }
 
+  // ── Aspirante
+  if (role === 'aspirante') {
+    if (activeSection === 'datos') {
+      return <DatosAspirante user={user} />
+    }
+
+    if (activeSection === 'documentos') {
+      return <DocumentosAspirante user={user} />
+    }
+
+    if (activeSection === 'pagos') {
+      return <PagosAspirante user={user} />
+    }
+
+    return <DatosAspirante user={user} />
+  }
+
   return null
 }
 
-export default function Dashboard({ user, onLogout }) {
-  const [activeSection, setActiveSection] = useState('datos')
-  const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+// ======================================================
+// DASHBOARD
+// ======================================================
 
-  const navItems = NAV_MAP[user.role] || []
+export default function Dashboard({
+  user,
+  onLogout,
+}) {
+  const [activeSection, setActiveSection] =
+    useState('datos')
+
+  const [collapsed, setCollapsed] =
+    useState(false)
+
+  const [mobileOpen, setMobileOpen] =
+    useState(false)
+
+  const navItems =
+    NAV_MAP[user.role] || []
+
+  // "datos" significa cosas distintas dependiendo
+  // del rol, así que ajustamos el título del Topbar.
+  const topbarTitle =
+    user.role === 'aspirante' &&
+    activeSection === 'datos'
+      ? 'Proceso de Admisión'
+      : SECTION_TITLES[
+          activeSection
+        ] || 'Dashboard'
 
   return (
     <div
       className="flex h-svh overflow-hidden"
-      style={{ background: '#F4F7FA' }}
+      style={{
+        background: '#F4F7FA',
+      }}
     >
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 lg:hidden"
           style={{
-            background: 'rgba(15,30,43,.55)',
-            backdropFilter: 'blur(2px)',
+            background:
+              'rgba(15,30,43,.55)',
+            backdropFilter:
+              'blur(2px)',
           }}
-          onClick={() => setMobileOpen(false)}
+          onClick={() =>
+            setMobileOpen(false)
+          }
         />
       )}
 
@@ -232,7 +302,9 @@ export default function Dashboard({ user, onLogout }) {
             setMobileOpen(false)
           }}
           collapsed={collapsed}
-          onCollapse={() => setCollapsed(!collapsed)}
+          onCollapse={() =>
+            setCollapsed(!collapsed)
+          }
           onLogout={onLogout}
         />
       </div>
@@ -240,9 +312,11 @@ export default function Dashboard({ user, onLogout }) {
       {/* Main */}
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <Topbar
-          title={SECTION_TITLES[activeSection] || 'Dashboard'}
+          title={topbarTitle}
           user={user}
-          onMenuClick={() => setMobileOpen(!mobileOpen)}
+          onMenuClick={() =>
+            setMobileOpen(!mobileOpen)
+          }
         />
 
         <main
@@ -250,7 +324,11 @@ export default function Dashboard({ user, onLogout }) {
           className="flex-1 overflow-y-auto p-6 lg:p-8 animate-fade-up"
         >
           <div className="max-w-6xl mx-auto">
-            {renderView(user.role, activeSection, user)}
+            {renderView(
+              user.role,
+              activeSection,
+              user
+            )}
           </div>
         </main>
       </div>
