@@ -25,8 +25,14 @@ import TramitesTutor   from '../components/tutor/TramitesTutor'
 
 // ── Nuevos módulos
 import DatosAspirante from '../components/aspirante/DatosAspirante'
+import DocumentosAspirante from '../components/aspirante/DocumentosAspirante'
+import PagosAspirante from '../components/aspirante/PagosAspirante'
+
 import DatosAdministrativo from '../components/administrativo/DatosAdministrativo'
+import InscripcionesAdmin from '../components/administrativo/InscripcionesAdmin'
+
 import DatosCoordinador from '../components/coordinador/DatosCoordinador'
+import PlantillaDocente from '../components/coordinador/PlantillaDocente'
 
 const NAV_ALUMNO  = [
   { id: 'datos',      label: 'Mi Perfil' },
@@ -51,12 +57,16 @@ const NAV_TUTOR = [
 ]
 const NAV_ASPIRANTE = [
   { id: 'datos', label: 'Proceso de Admisión' },
+  { id: 'documentos', label: 'Documentos' },
+  { id: 'pagos', label: 'Pagos' },
 ]
 const NAV_ADMINISTRATIVO = [
-  { id: 'datos', label: 'Gestión Administrativa' },
+  { id: 'datos', label: 'Panel Principal' },
+  { id: 'inscripciones', label: 'Inscripciones' },
 ]
 const NAV_COORDINADOR = [
   { id: 'datos', label: 'Supervisión' },
+  { id: 'docentes', label: 'Plantilla Docente' },
 ]
 const NAV_MAP = { 
   alumno: NAV_ALUMNO, 
@@ -71,6 +81,8 @@ const SECTION_TITLES = {
   datos: 'Mi Perfil', calif: 'Calificaciones', horario: 'Horario de Clases',
   tramites: 'Trámites Escolares', calendario: 'Calendario Escolar',
   asistencia: 'Asistencia', reportes: 'Reportes', avisos: 'Avisos Institucionales',
+  documentos: 'Documentos Requeridos', pagos: 'Pagos en Línea',
+  inscripciones: 'Gestión de Inscripciones', docentes: 'Plantilla Docente'
 }
 
 function renderView(role, activeSection, user) {
@@ -99,12 +111,19 @@ function renderView(role, activeSection, user) {
     return <DatosTutor user={user} />
   }
   if (role === 'aspirante') {
+    if (activeSection === 'datos')      return <DatosAspirante user={user} />
+    if (activeSection === 'documentos') return <DocumentosAspirante user={user} />
+    if (activeSection === 'pagos')      return <PagosAspirante user={user} />
     return <DatosAspirante user={user} />
   }
   if (role === 'administrativo') {
+    if (activeSection === 'datos')         return <DatosAdministrativo user={user} />
+    if (activeSection === 'inscripciones') return <InscripcionesAdmin user={user} />
     return <DatosAdministrativo user={user} />
   }
   if (role === 'coordinador') {
+    if (activeSection === 'datos')    return <DatosCoordinador user={user} />
+    if (activeSection === 'docentes') return <PlantillaDocente user={user} />
     return <DatosCoordinador user={user} />
   }
 }
