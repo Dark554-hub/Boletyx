@@ -9,13 +9,10 @@ import {
   IconSave,
 } from '../Icons'
 
-
 const ESTILOS = `
 .asis-page {
   --asis-blue: #203A50;
-  --asis-blue-light: #7995AB;
   --asis-celeste: #96BBCF;
-  --asis-celeste-light: #CCE0E6;
   --asis-bg: #F4F7F9;
   --asis-border: #DCE5EA;
   --asis-text: #172B3A;
@@ -27,43 +24,30 @@ const ESTILOS = `
   padding: 28px 24px 50px;
 }
 
-
-/* ==================================================
-   HEADER
-================================================== */
-
-.asis-page .asis-header {
+.asis-header {
   margin-bottom: 22px;
 }
 
-.asis-page .asis-header h1 {
+.asis-header h1 {
   margin: 0 0 5px;
   color: var(--asis-text);
   font-size: 24px;
   font-weight: 700;
 }
 
-.asis-page .asis-header p {
+.asis-header p {
   margin: 0;
   color: var(--asis-text-2);
   font-size: 14px;
 }
 
-
-/* ==================================================
-   MENSAJES
-================================================== */
-
 .asis-alert {
   display: flex;
   align-items: center;
   gap: 9px;
-
   margin-bottom: 18px;
   padding: 12px 16px;
-
   border-radius: 10px;
-
   font-size: 13px;
   font-weight: 600;
 }
@@ -80,35 +64,23 @@ const ESTILOS = `
   border: 1px solid #fecaca;
 }
 
-
-/* ==================================================
-   TABS
-================================================== */
-
 .asis-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-
   margin-bottom: 20px;
 }
 
 .asis-tab {
   border: 1px solid var(--asis-border);
   background: #fff;
-
   color: var(--asis-text-2);
-
   padding: 9px 15px;
-
   border-radius: 9px;
-
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-
   cursor: pointer;
-
   transition:
     background .15s,
     color .15s,
@@ -126,21 +98,70 @@ const ESTILOS = `
   background: var(--asis-blue);
   border-color: var(--asis-blue);
   color: #fff;
-
   box-shadow: 0 4px 12px rgba(32,58,80,.15);
 }
 
+.asis-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid var(--asis-border);
+  border-radius: 13px;
+}
 
-/* ==================================================
-   ESTADÍSTICAS
-================================================== */
+.asis-date-block {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.asis-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--asis-text-3);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.asis-date-input {
+  min-height: 39px;
+  padding: 0 12px;
+  color: var(--asis-text);
+  background: #fff;
+  border: 1px solid var(--asis-border);
+  border-radius: 9px;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.asis-date-input:focus {
+  border-color: var(--asis-blue);
+  box-shadow: 0 0 0 3px rgba(32,58,80,.08);
+}
+
+.asis-date-status {
+  color: var(--asis-text-2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.asis-date-status strong {
+  color: var(--asis-text);
+}
 
 .asis-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-
   gap: 14px;
-
   margin-bottom: 22px;
 }
 
@@ -148,29 +169,21 @@ const ESTILOS = `
   display: flex;
   align-items: center;
   gap: 14px;
-
   min-height: 104px;
-
   padding: 18px;
-
   background: #fff;
-
   border: 1px solid var(--asis-border);
   border-radius: 14px;
-
   box-shadow: 0 2px 5px rgba(32,58,80,.03);
 }
 
 .asis-stat-icon {
   width: 46px;
   height: 46px;
-
   flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
 }
 
@@ -190,30 +203,20 @@ const ESTILOS = `
   line-height: 1.35;
   font-weight: 700;
   color: var(--asis-text);
-
   text-transform: capitalize;
 }
 
 .asis-stat-label {
   margin-top: 5px;
-
   font-size: 12px;
   color: var(--asis-text-3);
 }
 
-
-/* ==================================================
-   CARD
-================================================== */
-
 .asis-card {
   overflow: hidden;
-
   background: #fff;
-
   border: 1px solid var(--asis-border);
   border-radius: 14px;
-
   box-shadow: 0 2px 6px rgba(32,58,80,.035);
 }
 
@@ -221,26 +224,20 @@ const ESTILOS = `
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 20px;
-
   padding: 18px 20px;
-
   border-bottom: 1px solid var(--asis-border);
 }
 
 .asis-card-title {
   color: var(--asis-text);
-
   font-size: 16px;
   font-weight: 700;
 }
 
 .asis-card-subtitle {
   margin-top: 4px;
-
   color: var(--asis-text-2);
-
   font-size: 12px;
 }
 
@@ -248,34 +245,21 @@ const ESTILOS = `
   display: flex;
   align-items: center;
   gap: 8px;
-
   flex-shrink: 0;
 }
-
-
-/* ==================================================
-   BOTONES
-================================================== */
 
 .asis-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   min-height: 38px;
-
   padding: 0 14px;
-
   border-radius: 8px;
-
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-
   cursor: pointer;
-
   transition:
     background .15s,
     border-color .15s,
@@ -308,11 +292,6 @@ const ESTILOS = `
   background: #172f42;
 }
 
-
-/* ==================================================
-   TABLA
-================================================== */
-
 .asis-table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -321,38 +300,27 @@ const ESTILOS = `
 .asis-table {
   width: 100%;
   border-collapse: collapse;
-
   min-width: 850px;
 }
 
 .asis-table th {
   padding: 12px 16px;
-
   background: #F7F9FA;
-
   border-bottom: 1px solid var(--asis-border);
-
   color: var(--asis-text-2);
-
   font-size: 11px;
   font-weight: 700;
-
   text-align: left;
   text-transform: uppercase;
   letter-spacing: .03em;
-
   white-space: nowrap;
 }
 
 .asis-table td {
   padding: 14px 16px;
-
   border-bottom: 1px solid #EDF1F3;
-
   color: var(--asis-text);
-
   font-size: 13px;
-
   vertical-align: middle;
 }
 
@@ -384,70 +352,46 @@ const ESTILOS = `
   text-align: center !important;
 }
 
-
-/* ==================================================
-   PROGRESO
-================================================== */
-
 .asis-progress-wrap {
   display: flex;
   align-items: center;
   gap: 9px;
-
   min-width: 150px;
 }
 
 .asis-progress {
   flex: 1;
-
   height: 7px;
-
   overflow: hidden;
-
   background: #E8EDF0;
-
   border-radius: 999px;
 }
 
 .asis-progress-fill {
   height: 100%;
-
   border-radius: 999px;
-
   transition: width .2s;
 }
 
 .asis-percent {
   min-width: 40px;
-
   font-size: 12px;
   font-weight: 700;
-
   text-align: right;
 }
-
-
-/* ==================================================
-   PRESENTE / AUSENTE
-================================================== */
 
 .asis-status-btn {
   width: 36px;
   height: 36px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 9px;
-
   cursor: pointer;
-
   transition:
     transform .12s,
     background .15s,
     border-color .15s;
-
   font: inherit;
 }
 
@@ -457,17 +401,13 @@ const ESTILOS = `
 
 .asis-status-btn.presente {
   color: #16a34a;
-
   background: #dcfce7;
-
   border: 2px solid #22c55e;
 }
 
 .asis-status-btn.ausente {
   color: #dc2626;
-
   background: #fee2e2;
-
   border: 2px solid #ef4444;
 }
 
@@ -476,25 +416,12 @@ const ESTILOS = `
   opacity: .55;
 }
 
-
-/* ==================================================
-   VACÍO / LOADING
-================================================== */
-
 .asis-empty {
   padding: 38px 20px;
-
   text-align: center;
-
   color: var(--asis-text-2);
-
   font-size: 14px;
 }
-
-
-/* ==================================================
-   RESPONSIVE
-================================================== */
 
 @media (max-width: 1050px) {
   .asis-stats {
@@ -511,6 +438,7 @@ const ESTILOS = `
     grid-template-columns: 1fr;
   }
 
+  .asis-toolbar,
   .asis-card-header {
     align-items: flex-start;
     flex-direction: column;
@@ -527,7 +455,6 @@ const ESTILOS = `
   .asis-tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
-
     padding-bottom: 3px;
   }
 
@@ -537,13 +464,46 @@ const ESTILOS = `
 }
 `
 
+function fechaLocalISO() {
+  const hoy = new Date()
+
+  const year = hoy.getFullYear()
+
+  const month = String(
+    hoy.getMonth() + 1
+  ).padStart(2, '0')
+
+  const day = String(
+    hoy.getDate()
+  ).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function formatearFecha(fecha) {
+  if (!fecha) {
+    return 'Sin fecha'
+  }
+
+  const [year, month, day] =
+    fecha.split('-').map(Number)
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  ).toLocaleDateString(
+    'es-MX',
+    {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }
+  )
+}
 
 export default function AsistenciaDocente({ user }) {
-
-  // ==================================================
-  // ESTADOS
-  // ==================================================
-
   const [grupos, setGrupos] = useState([])
   const [activeGrupo, setActiveGrupo] = useState('')
 
@@ -555,64 +515,29 @@ export default function AsistenciaDocente({ user }) {
   const [guardado, setGuardado] = useState(false)
   const [error, setError] = useState('')
 
+  const fechaHoy = useMemo(
+    () => fechaLocalISO(),
+    []
+  )
 
-  // ==================================================
-  // FECHA
-  // ==================================================
-
-  const fechaHoy = useMemo(() => {
-    const hoy = new Date()
-
-    const year = hoy.getFullYear()
-
-    const month = String(
-      hoy.getMonth() + 1
-    ).padStart(2, '0')
-
-    const day = String(
-      hoy.getDate()
-    ).padStart(2, '0')
-
-    return `${year}-${month}-${day}`
-  }, [])
-
-
-  const today = useMemo(() => {
-    return new Date().toLocaleDateString(
-      'es-MX',
-      {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }
-    )
-  }, [])
-
-
-  // ==================================================
-  // GRUPO ACTIVO
-  // ==================================================
+  const [
+    fechaSeleccionada,
+    setFechaSeleccionada,
+  ] = useState(fechaHoy)
 
   const grupo = useMemo(() => {
     return (
       grupos.find(
-        g =>
-          String(g.id) ===
+        item =>
+          String(item.id) ===
           String(activeGrupo)
       ) || null
     )
   }, [grupos, activeGrupo])
 
-
-  // ==================================================
-  // CARGAR INFORMACIÓN
-  // ==================================================
-
   useEffect(() => {
     cargarGrupos()
   }, [user?.id])
-
 
   async function cargarGrupos() {
     try {
@@ -622,27 +547,21 @@ export default function AsistenciaDocente({ user }) {
       const {
         data: authData,
         error: authError,
-      } = await supabase.auth.getUser()
-
+      } =
+        await supabase.auth.getUser()
 
       if (authError) {
         throw authError
       }
 
-
-      const authUser = authData?.user
-
+      const authUser =
+        authData?.user
 
       if (!authUser?.id) {
         throw new Error(
           'No se encontró la sesión del docente.'
         )
       }
-
-
-      // ================================================
-      // DOCENTE
-      // ================================================
 
       const {
         data: docente,
@@ -659,11 +578,9 @@ export default function AsistenciaDocente({ user }) {
         )
         .maybeSingle()
 
-
       if (docenteError) {
         throw docenteError
       }
-
 
       if (!docente) {
         setGrupos([])
@@ -673,11 +590,6 @@ export default function AsistenciaDocente({ user }) {
           'No se encontró el registro del docente.'
         )
       }
-
-
-      // ================================================
-      // ASIGNACIONES
-      // ================================================
 
       const {
         data: asignaciones,
@@ -710,11 +622,9 @@ export default function AsistenciaDocente({ user }) {
           ascending: true,
         })
 
-
       if (asignacionesError) {
         throw asignacionesError
       }
-
 
       if (!asignaciones?.length) {
         setGrupos([])
@@ -722,16 +632,10 @@ export default function AsistenciaDocente({ user }) {
         return
       }
 
-
-      // ================================================
-      // ALUMNOS + ASISTENCIAS
-      // ================================================
-
       const gruposCargados =
         await Promise.all(
           asignaciones.map(
             async asignacion => {
-
               const {
                 data: inscripciones,
                 error: inscripcionesError,
@@ -757,11 +661,9 @@ export default function AsistenciaDocente({ user }) {
                   asignacion.grupo_id
                 )
 
-
               if (inscripcionesError) {
                 throw inscripcionesError
               }
-
 
               const {
                 data: historial,
@@ -780,90 +682,91 @@ export default function AsistenciaDocente({ user }) {
                   asignacion.id
                 )
 
-
               if (historialError) {
                 throw historialError
               }
 
-
               const alumnos =
                 (inscripciones || [])
-                  .map(inscripcion => {
+                  .map(
+                    inscripcion => {
+                      const alumno =
+                        Array.isArray(
+                          inscripcion.alumnos
+                        )
+                          ? inscripcion
+                              .alumnos[0]
+                          : inscripcion.alumnos
 
-                    const alumno =
-                      inscripcion.alumnos
+                      const perfil =
+                        Array.isArray(
+                          alumno?.perfiles
+                        )
+                          ? alumno
+                              .perfiles[0]
+                          : alumno?.perfiles
 
-                    const perfil =
-                      alumno?.perfiles
+                      const registros =
+                        (
+                          historial || []
+                        ).filter(
+                          registro =>
+                            Number(
+                              registro.inscripcion_id
+                            ) ===
+                            Number(
+                              inscripcion.id
+                            )
+                        )
 
+                      const asistencias =
+                        registros.filter(
+                          registro =>
+                            registro.estado ===
+                            'presente'
+                        ).length
 
-                    const registros =
-                      (historial || []).filter(
-                        registro =>
-                          Number(
-                            registro.inscripcion_id
-                          ) ===
-                          Number(
-                            inscripcion.id
+                      const faltas =
+                        registros.filter(
+                          registro =>
+                            registro.estado ===
+                            'ausente'
+                        ).length
+
+                      const nombre =
+                        [
+                          perfil?.nombre,
+                          perfil?.apellido,
+                        ]
+                          .filter(
+                            Boolean
                           )
-                      )
+                          .join(
+                            ' '
+                          ) ||
+                        'Alumno'
 
+                      return {
+                        id: alumno?.id,
 
-                    const asistencias =
-                      registros.filter(
-                        registro =>
-                          registro.estado ===
-                          'presente'
-                      ).length
+                        inscripcion_id:
+                          inscripcion.id,
 
+                        matricula:
+                          alumno?.matricula,
 
-                    const faltas =
-                      registros.filter(
-                        registro =>
-                          registro.estado ===
-                          'ausente'
-                      ).length
+                        nombre,
 
+                        asistencias,
+                        faltas,
 
-                    const registroHoy =
-                      registros.find(
-                        registro =>
-                          registro.fecha ===
-                          fechaHoy
-                      )
-
-
-                    const nombre =
-                      [
-                        perfil?.nombre,
-                        perfil?.apellido,
-                      ]
-                        .filter(Boolean)
-                        .join(' ') ||
-                      'Alumno'
-
-
-                    return {
-                      id: alumno?.id,
-
-                      inscripcion_id:
-                        inscripcion.id,
-
-                      matricula:
-                        alumno?.matricula,
-
-                      nombre,
-
-                      asistencias,
-                      faltas,
-
-                      estadoHoy:
-                        registroHoy?.estado ||
-                        null,
+                        registros,
+                      }
                     }
-                  })
+                  )
                   .filter(
-                    alumno => alumno.id
+                    alumno =>
+                      alumno.id
                   )
                   .sort(
                     (a, b) =>
@@ -873,6 +776,21 @@ export default function AsistenciaDocente({ user }) {
                       )
                   )
 
+              const grupoRelacion =
+                Array.isArray(
+                  asignacion.grupos
+                )
+                  ? asignacion
+                      .grupos[0]
+                  : asignacion.grupos
+
+              const materiaRelacion =
+                Array.isArray(
+                  asignacion.materias
+                )
+                  ? asignacion
+                      .materias[0]
+                  : asignacion.materias
 
               return {
                 id: asignacion.id,
@@ -887,20 +805,20 @@ export default function AsistenciaDocente({ user }) {
                   asignacion.materia_id,
 
                 grupo:
-                  asignacion.grupos?.nombre ||
+                  grupoRelacion?.nombre ||
                   'Sin grupo',
 
                 semestre:
-                  asignacion.grupos?.semestre,
+                  grupoRelacion?.semestre,
 
                 turno:
-                  asignacion.grupos?.turno,
+                  grupoRelacion?.turno,
 
                 ciclo:
-                  asignacion.grupos?.ciclo_escolar,
+                  grupoRelacion?.ciclo_escolar,
 
                 materia:
-                  asignacion.materias?.nombre ||
+                  materiaRelacion?.nombre ||
                   'Materia',
 
                 alumnos,
@@ -909,15 +827,13 @@ export default function AsistenciaDocente({ user }) {
           )
         )
 
-
       setGrupos(gruposCargados)
-
 
       setActiveGrupo(current => {
         const existe =
           gruposCargados.some(
-            g =>
-              String(g.id) ===
+            item =>
+              String(item.id) ===
               String(current)
           )
 
@@ -925,9 +841,11 @@ export default function AsistenciaDocente({ user }) {
           return current
         }
 
-        return gruposCargados[0]?.id || ''
+        return (
+          gruposCargados[0]?.id ||
+          ''
+        )
       })
-
     } catch (err) {
       console.error(
         'Error cargando asistencia:',
@@ -939,18 +857,12 @@ export default function AsistenciaDocente({ user }) {
 
       setError(
         err?.message ||
-        'No se pudo cargar la información de asistencia.'
+          'No se pudo cargar la información de asistencia.'
       )
-
     } finally {
       setLoading(false)
     }
   }
-
-
-  // ==================================================
-  // ESTADO DE HOY
-  // ==================================================
 
   useEffect(() => {
     if (!grupo) {
@@ -958,30 +870,39 @@ export default function AsistenciaDocente({ user }) {
       return
     }
 
-
     const estados = {}
 
+    grupo.alumnos.forEach(
+      alumno => {
+        const registro =
+          alumno.registros.find(
+            item =>
+              item.fecha ===
+              fechaSeleccionada
+          )
 
-    grupo.alumnos.forEach(alumno => {
-      estados[alumno.id] =
-        alumno.estadoHoy !== 'ausente'
-    })
-
+        // Si la fecha todavía no tiene pase de lista,
+        // iniciamos en presente para conservar el
+        // comportamiento rápido del componente original.
+        estados[alumno.id] =
+          registro
+            ? registro.estado !==
+              'ausente'
+            : true
+      }
+    )
 
     setPresentes(estados)
     setGuardado(false)
-
-  }, [grupo?.id])
-
-
-  // ==================================================
-  // PRESENTE / AUSENTE
-  // ==================================================
+    setError('')
+  }, [
+    grupo?.id,
+    fechaSeleccionada,
+  ])
 
   const togglePresente = id => {
     setPresentes(previous => ({
       ...previous,
-
       [id]:
         previous[id] === undefined
           ? false
@@ -991,123 +912,131 @@ export default function AsistenciaDocente({ user }) {
     setGuardado(false)
   }
 
+  const marcarTodosPresentes =
+    () => {
+      if (!grupo) return
 
-  // ==================================================
-  // TODOS PRESENTES
-  // ==================================================
+      const todos = {}
 
-  const marcarTodosPresentes = () => {
-    if (!grupo) return
-
-
-    const todos = {}
-
-
-    grupo.alumnos.forEach(alumno => {
-      todos[alumno.id] = true
-    })
-
-
-    setPresentes(todos)
-    setGuardado(false)
-  }
-
-
-  // ==================================================
-  // GUARDAR
-  // ==================================================
-
-  const handleGuardar = async () => {
-    if (!grupo) return
-
-
-    if (!grupo.alumnos.length) {
-      setError(
-        'No hay alumnos inscritos en este grupo.'
+      grupo.alumnos.forEach(
+        alumno => {
+          todos[alumno.id] = true
+        }
       )
-      return
+
+      setPresentes(todos)
+      setGuardado(false)
     }
 
-
-    try {
-      setSaving(true)
-      setError('')
-      setGuardado(false)
-
-
-      const registros =
-        grupo.alumnos.map(alumno => ({
-          inscripcion_id:
-            alumno.inscripcion_id,
-
-          grupo_materia_id:
-            grupo.grupo_materia_id,
-
-          fecha:
-            fechaHoy,
-
-          estado:
-            presentes[alumno.id] === false
-              ? 'ausente'
-              : 'presente',
-
-          updated_at:
-            new Date().toISOString(),
-        }))
-
-
-      const {
-        error: guardarError,
-      } = await supabase
-        .from('asistencias')
-        .upsert(
-          registros,
-          {
-            onConflict:
-              'inscripcion_id,grupo_materia_id,fecha',
-          }
-        )
-
-
-      if (guardarError) {
-        throw guardarError
+  const registrosFecha =
+    useMemo(() => {
+      if (!grupo) {
+        return 0
       }
 
+      return grupo.alumnos.filter(
+        alumno =>
+          alumno.registros.some(
+            registro =>
+              registro.fecha ===
+              fechaSeleccionada
+          )
+      ).length
+    }, [
+      grupo,
+      fechaSeleccionada,
+    ])
 
-      /*
-        Recargar para que los acumulados
-        se actualicen inmediatamente.
-      */
+  const handleGuardar =
+    async () => {
+      if (!grupo) return
 
-      await cargarGrupos()
+      if (
+        !grupo.alumnos.length
+      ) {
+        setError(
+          'No hay alumnos inscritos en este grupo.'
+        )
+        return
+      }
 
-      setGuardado(true)
+      if (
+        fechaSeleccionada >
+        fechaHoy
+      ) {
+        setError(
+          'No puedes registrar asistencia en una fecha futura.'
+        )
+        return
+      }
 
-
-      setTimeout(() => {
+      try {
+        setSaving(true)
+        setError('')
         setGuardado(false)
-      }, 3000)
 
-    } catch (err) {
-      console.error(
-        'Error guardando asistencia:',
-        err
-      )
+        const registros =
+          grupo.alumnos.map(
+            alumno => ({
+              inscripcion_id:
+                alumno.inscripcion_id,
 
-      setError(
-        err?.message ||
-        'No se pudo guardar la asistencia.'
-      )
+              grupo_materia_id:
+                grupo.grupo_materia_id,
 
-    } finally {
-      setSaving(false)
+              fecha:
+                fechaSeleccionada,
+
+              estado:
+                presentes[
+                  alumno.id
+                ] === false
+                  ? 'ausente'
+                  : 'presente',
+
+              updated_at:
+                new Date().toISOString(),
+            })
+          )
+
+        const {
+          error:
+            guardarError,
+        } = await supabase
+          .from('asistencias')
+          .upsert(
+            registros,
+            {
+              onConflict:
+                'inscripcion_id,grupo_materia_id,fecha',
+            }
+          )
+
+        if (guardarError) {
+          throw guardarError
+        }
+
+        await cargarGrupos()
+
+        setGuardado(true)
+
+        setTimeout(() => {
+          setGuardado(false)
+        }, 3000)
+      } catch (err) {
+        console.error(
+          'Error guardando asistencia:',
+          err
+        )
+
+        setError(
+          err?.message ||
+            'No se pudo guardar la asistencia.'
+        )
+      } finally {
+        setSaving(false)
+      }
     }
-  }
-
-
-  // ==================================================
-  // TOTALES
-  // ==================================================
 
   const totalAsistencias =
     useMemo(() => {
@@ -1115,11 +1044,11 @@ export default function AsistenciaDocente({ user }) {
 
       return grupo.alumnos.reduce(
         (total, alumno) =>
-          total + alumno.asistencias,
+          total +
+          alumno.asistencias,
         0
       )
     }, [grupo])
-
 
   const totalFaltas =
     useMemo(() => {
@@ -1127,15 +1056,16 @@ export default function AsistenciaDocente({ user }) {
 
       return grupo.alumnos.reduce(
         (total, alumno) =>
-          total + alumno.faltas,
+          total +
+          alumno.faltas,
         0
       )
     }, [grupo])
 
-
-  // ==================================================
-  // LOADING
-  // ==================================================
+  const fechaVisible =
+    formatearFecha(
+      fechaSeleccionada
+    )
 
   if (loading) {
     return (
@@ -1143,12 +1073,13 @@ export default function AsistenciaDocente({ user }) {
         <style>{ESTILOS}</style>
 
         <div className="asis-page fade-in">
-
           <div className="asis-header">
-            <h1>Control de Asistencia</h1>
+            <h1>
+              Control de Asistencia
+            </h1>
 
             <p>
-              Registra la asistencia diaria de tus grupos
+              Registra y corrige la asistencia de tus grupos
             </p>
           </div>
 
@@ -1157,16 +1088,10 @@ export default function AsistenciaDocente({ user }) {
               Cargando grupos y asistencia...
             </div>
           </div>
-
         </div>
       </>
     )
   }
-
-
-  // ==================================================
-  // SIN GRUPOS
-  // ==================================================
 
   if (!grupos.length) {
     return (
@@ -1174,15 +1099,15 @@ export default function AsistenciaDocente({ user }) {
         <style>{ESTILOS}</style>
 
         <div className="asis-page fade-in">
-
           <div className="asis-header">
-            <h1>Control de Asistencia</h1>
+            <h1>
+              Control de Asistencia
+            </h1>
 
             <p>
-              Registra la asistencia diaria de tus grupos
+              Registra y corrige la asistencia de tus grupos
             </p>
           </div>
-
 
           {error && (
             <div className="asis-alert error">
@@ -1191,7 +1116,6 @@ export default function AsistenciaDocente({ user }) {
             </div>
           )}
 
-
           {!error && (
             <div className="asis-card">
               <div className="asis-empty">
@@ -1199,46 +1123,35 @@ export default function AsistenciaDocente({ user }) {
               </div>
             </div>
           )}
-
         </div>
       </>
     )
   }
-
-
-  // ==================================================
-  // RENDER
-  // ==================================================
 
   return (
     <>
       <style>{ESTILOS}</style>
 
       <div className="asis-page fade-in">
-
-        {/* HEADER */}
-
         <div className="asis-header">
-          <h1>Control de Asistencia</h1>
+          <h1>
+            Control de Asistencia
+          </h1>
 
           <p>
-            Registra la asistencia diaria de tus grupos
+            Registra asistencia diaria o corrige una fecha anterior sin duplicar registros
           </p>
         </div>
-
-
-        {/* MENSAJE GUARDADO */}
 
         {guardado && (
           <div className="asis-alert success">
             <IconCheck size={16} />
 
-            Asistencia guardada correctamente.
+            {registrosFecha > 0
+              ? 'Asistencia actualizada correctamente.'
+              : 'Asistencia guardada correctamente.'}
           </div>
         )}
-
-
-        {/* ERROR */}
 
         {error && (
           <div className="asis-alert error">
@@ -1248,42 +1161,89 @@ export default function AsistenciaDocente({ user }) {
           </div>
         )}
 
-
-        {/* TABS */}
-
         <div className="asis-tabs">
-
-          {grupos.map(g => (
+          {grupos.map(item => (
             <button
-              key={g.id}
+              key={item.id}
               type="button"
-              className={
-                `asis-tab${
-                  String(activeGrupo) ===
-                  String(g.id)
-                    ? ' active'
-                    : ''
-                }`
-              }
+              className={`asis-tab${
+                String(
+                  activeGrupo
+                ) ===
+                String(item.id)
+                  ? ' active'
+                  : ''
+              }`}
               onClick={() =>
-                setActiveGrupo(g.id)
+                setActiveGrupo(
+                  item.id
+                )
               }
             >
-              {g.grupo} · {g.materia}
+              {item.grupo} ·{' '}
+              {item.materia}
             </button>
           ))}
-
         </div>
 
+        <div className="asis-toolbar">
+          <div className="asis-date-block">
+            <div className="asis-field">
+              <label>
+                Fecha del pase de lista
+              </label>
 
-        {/* ESTADÍSTICAS */}
+              <input
+                type="date"
+                className="asis-date-input"
+                value={
+                  fechaSeleccionada
+                }
+                max={fechaHoy}
+                onChange={e =>
+                  setFechaSeleccionada(
+                    e.target.value
+                  )
+                }
+                disabled={saving}
+              />
+            </div>
+
+            <button
+              type="button"
+              className="asis-btn asis-btn-outline"
+              onClick={() =>
+                setFechaSeleccionada(
+                  fechaHoy
+                )
+              }
+              disabled={
+                saving ||
+                fechaSeleccionada ===
+                  fechaHoy
+              }
+            >
+              <IconCalendar
+                size={14}
+              />
+              Hoy
+            </button>
+          </div>
+
+          <div className="asis-date-status">
+            <strong>
+              {fechaVisible}
+            </strong>
+            <br />
+
+            {registrosFecha > 0
+              ? `${registrosFecha} registro(s) existentes. Al guardar, se corregirán sin duplicarse.`
+              : 'Esta fecha todavía no tiene pase de lista guardado.'}
+          </div>
+        </div>
 
         <div className="asis-stats">
-
-          {/* FECHA */}
-
           <div className="asis-stat">
-
             <div
               className="asis-stat-icon"
               style={{
@@ -1294,31 +1254,24 @@ export default function AsistenciaDocente({ user }) {
               <IconCalendar
                 size={22}
                 style={{
-                  color: '#203A50',
+                  color:
+                    '#203A50',
                 }}
               />
             </div>
 
-
             <div className="asis-stat-content">
-
               <div className="asis-stat-date">
-                {today}
+                {fechaVisible}
               </div>
 
               <div className="asis-stat-label">
-                Fecha de hoy
+                Fecha seleccionada
               </div>
-
             </div>
-
           </div>
 
-
-          {/* ASISTENCIAS */}
-
           <div className="asis-stat">
-
             <div
               className="asis-stat-icon"
               style={{
@@ -1329,18 +1282,18 @@ export default function AsistenciaDocente({ user }) {
               <IconCheck
                 size={22}
                 style={{
-                  color: '#16a34a',
+                  color:
+                    '#16a34a',
                 }}
               />
             </div>
 
-
             <div className="asis-stat-content">
-
               <div
                 className="asis-stat-value"
                 style={{
-                  color: '#16a34a',
+                  color:
+                    '#16a34a',
                 }}
               >
                 {totalAsistencias}
@@ -1349,16 +1302,10 @@ export default function AsistenciaDocente({ user }) {
               <div className="asis-stat-label">
                 Asistencias acumuladas
               </div>
-
             </div>
-
           </div>
 
-
-          {/* FALTAS */}
-
           <div className="asis-stat">
-
             <div
               className="asis-stat-icon"
               style={{
@@ -1369,18 +1316,18 @@ export default function AsistenciaDocente({ user }) {
               <IconAlert
                 size={22}
                 style={{
-                  color: '#dc2626',
+                  color:
+                    '#dc2626',
                 }}
               />
             </div>
 
-
             <div className="asis-stat-content">
-
               <div
                 className="asis-stat-value"
                 style={{
-                  color: '#dc2626',
+                  color:
+                    '#dc2626',
                 }}
               >
                 {totalFaltas}
@@ -1389,16 +1336,10 @@ export default function AsistenciaDocente({ user }) {
               <div className="asis-stat-label">
                 Faltas acumuladas
               </div>
-
             </div>
-
           </div>
 
-
-          {/* ALUMNOS */}
-
           <div className="asis-stat">
-
             <div
               className="asis-stat-icon"
               style={{
@@ -1409,39 +1350,31 @@ export default function AsistenciaDocente({ user }) {
               <IconUsers
                 size={22}
                 style={{
-                  color: '#ca8a04',
+                  color:
+                    '#ca8a04',
                 }}
               />
             </div>
 
-
             <div className="asis-stat-content">
-
               <div className="asis-stat-value">
-                {grupo?.alumnos?.length || 0}
+                {grupo?.alumnos
+                  ?.length || 0}
               </div>
 
               <div className="asis-stat-label">
                 Total alumnos
               </div>
-
             </div>
-
           </div>
-
         </div>
 
-
-        {/* PASE DE LISTA */}
-
         <div className="asis-card">
-
           <div className="asis-card-header">
-
             <div>
-
               <div className="asis-card-title">
-                Pase de lista — {grupo?.grupo}
+                Pase de lista —{' '}
+                {grupo?.grupo}
               </div>
 
               <div className="asis-card-subtitle">
@@ -1450,68 +1383,72 @@ export default function AsistenciaDocente({ user }) {
                 {grupo?.turno
                   ? ` · ${grupo.turno}`
                   : ''}
-              </div>
 
+                {' · '}
+                {fechaVisible}
+              </div>
             </div>
 
-
             <div className="asis-actions">
-
               <button
                 type="button"
                 className="asis-btn asis-btn-outline"
-                onClick={marcarTodosPresentes}
+                onClick={
+                  marcarTodosPresentes
+                }
                 disabled={saving}
               >
-                <IconCheck size={14} />
+                <IconCheck
+                  size={14}
+                />
                 Todos presentes
               </button>
-
 
               <button
                 type="button"
                 className="asis-btn asis-btn-primary"
-                onClick={handleGuardar}
+                onClick={
+                  handleGuardar
+                }
                 disabled={
                   saving ||
-                  !grupo?.alumnos?.length
+                  !grupo?.alumnos
+                    ?.length
                 }
               >
-                <IconSave size={14} />
+                <IconSave
+                  size={14}
+                />
 
                 {saving
                   ? 'Guardando...'
-                  : 'Guardar'}
+                  : registrosFecha >
+                      0
+                    ? 'Actualizar asistencia'
+                    : 'Guardar asistencia'}
               </button>
-
             </div>
-
           </div>
 
-
-          {/* SIN ALUMNOS */}
-
-          {!grupo?.alumnos?.length ? (
-
+          {!grupo?.alumnos
+            ?.length ? (
             <div className="asis-empty">
               No hay alumnos inscritos en este grupo.
             </div>
-
           ) : (
-
-            /* TABLA */
-
             <div className="asis-table-wrap">
-
               <table className="asis-table">
-
                 <thead>
                   <tr>
                     <th>#</th>
 
-                    <th>Alumno</th>
+                    <th>
+                      Alumno
+                    </th>
 
-                    <th>Matrícula</th>
+                    <th>
+                      Matrícula
+                    </th>
 
                     <th className="asis-center">
                       Asistencias
@@ -1526,166 +1463,178 @@ export default function AsistenciaDocente({ user }) {
                     </th>
 
                     <th className="asis-center">
-                      Hoy
+                      {fechaSeleccionada ===
+                      fechaHoy
+                        ? 'Hoy'
+                        : 'Estado'}
                     </th>
                   </tr>
                 </thead>
 
-
                 <tbody>
-
                   {grupo.alumnos.map(
-                    (al, idx) => {
-
+                    (
+                      alumno,
+                      idx
+                    ) => {
                       const presente =
-                        presentes[al.id] !== false
-
+                        presentes[
+                          alumno.id
+                        ] !== false
 
                       const totalClases =
-                        al.asistencias +
-                        al.faltas
-
-
-                      /*
-                        Si todavía no existen clases
-                        registradas mostramos 100% como
-                        estado inicial.
-
-                        En cuanto se guarda la primera
-                        asistencia se calcula con datos
-                        reales.
-                      */
+                        alumno.asistencias +
+                        alumno.faltas
 
                       const pct =
-                        totalClases > 0
+                        totalClases >
+                        0
                           ? Math.round(
                               (
-                                al.asistencias /
+                                alumno.asistencias /
                                 totalClases
-                              ) * 100
+                              ) *
+                                100
                             )
-                          : 100
-
+                          : null
 
                       const color =
-                        pct >= 80
-                          ? '#16a34a'
-                          : pct >= 70
-                            ? '#ca8a04'
-                            : '#dc2626'
-
+                        pct === null
+                          ? '#8FA0AF'
+                          : pct >= 80
+                            ? '#16a34a'
+                            : pct >= 70
+                              ? '#ca8a04'
+                              : '#dc2626'
 
                       return (
                         <tr
-                          key={al.id}
+                          key={
+                            alumno.id
+                          }
                           className={
                             presente
                               ? ''
                               : 'ausente'
                           }
                         >
-
                           <td
                             style={{
-                              color: '#8FA0AF',
-                              width: 45,
+                              color:
+                                '#8FA0AF',
+                              width:
+                                45,
                             }}
                           >
-                            {idx + 1}
+                            {idx +
+                              1}
                           </td>
-
 
                           <td className="asis-alumno">
-                            {al.nombre}
+                            {
+                              alumno.nombre
+                            }
                           </td>
-
 
                           <td className="asis-matricula">
-                            {al.matricula || '—'}
+                            {alumno.matricula ||
+                              '—'}
                           </td>
-
 
                           <td
                             className="asis-center"
                             style={{
-                              color: '#16a34a',
-                              fontWeight: 700,
+                              color:
+                                '#16a34a',
+                              fontWeight:
+                                700,
                             }}
                           >
-                            {al.asistencias}
+                            {
+                              alumno.asistencias
+                            }
                           </td>
-
 
                           <td
                             className="asis-center"
                             style={{
-                              color: '#dc2626',
-                              fontWeight: 700,
+                              color:
+                                '#dc2626',
+                              fontWeight:
+                                700,
                             }}
                           >
-                            {al.faltas}
+                            {
+                              alumno.faltas
+                            }
                           </td>
-
 
                           <td>
-
-                            <div className="asis-progress-wrap">
-
-                              <div className="asis-progress">
-
-                                <div
-                                  className="asis-progress-fill"
-                                  style={{
-                                    width: `${pct}%`,
-                                    background: color,
-                                  }}
-                                />
-
-                              </div>
-
-
+                            {pct ===
+                            null ? (
                               <span
-                                className="asis-percent"
                                 style={{
-                                  color,
+                                  color:
+                                    '#8FA0AF',
+                                  fontSize:
+                                    12,
                                 }}
                               >
-                                {pct}%
+                                Sin
+                                registros
                               </span>
+                            ) : (
+                              <div className="asis-progress-wrap">
+                                <div className="asis-progress">
+                                  <div
+                                    className="asis-progress-fill"
+                                    style={{
+                                      width: `${pct}%`,
+                                      background:
+                                        color,
+                                    }}
+                                  />
+                                </div>
 
-                            </div>
-
+                                <span
+                                  className="asis-percent"
+                                  style={{
+                                    color,
+                                  }}
+                                >
+                                  {pct}%
+                                </span>
+                              </div>
+                            )}
                           </td>
 
-
                           <td className="asis-center">
-
                             <button
                               type="button"
-                              className={
-                                `asis-status-btn ${
-                                  presente
-                                    ? 'presente'
-                                    : 'ausente'
-                                }`
-                              }
+                              className={`asis-status-btn ${
+                                presente
+                                  ? 'presente'
+                                  : 'ausente'
+                              }`}
                               onClick={() =>
-                                togglePresente(al.id)
+                                togglePresente(
+                                  alumno.id
+                                )
                               }
-                              disabled={saving}
+                              disabled={
+                                saving
+                              }
                               title={
                                 presente
                                   ? 'Presente'
                                   : 'Ausente'
                               }
                             >
-
                               {presente ? (
-
-                                <IconCheck size={16} />
-
+                                <IconCheck
+                                  size={16}
+                                />
                               ) : (
-
                                 <svg
                                   width="16"
                                   height="16"
@@ -1709,27 +1658,18 @@ export default function AsistenciaDocente({ user }) {
                                     y2="18"
                                   />
                                 </svg>
-
                               )}
-
                             </button>
-
                           </td>
-
                         </tr>
                       )
                     }
                   )}
-
                 </tbody>
-
               </table>
-
             </div>
           )}
-
         </div>
-
       </div>
     </>
   )
