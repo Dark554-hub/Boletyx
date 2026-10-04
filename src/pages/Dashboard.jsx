@@ -35,6 +35,10 @@ import DatosAspirante from '../components/aspirante/DatosAspirante'
 import DocumentosAspirante from '../components/aspirante/DocumentosAspirante'
 import PagosAspirante from '../components/aspirante/PagosAspirante'
 
+// ── Coordinador views
+import DatosCoordinador from '../components/coordinador/DatosCoordinador'
+import PlantillaDocente from '../components/coordinador/PlantillaDocente'
+
 // ======================================================
 // NAVEGACIÓN
 // ======================================================
@@ -77,12 +81,24 @@ const NAV_ASPIRANTE = [
   { id: 'pagos', label: 'Pagos' },
 ]
 
+const NAV_COORDINADOR = [
+  {
+    id: 'datos',
+    label: 'Coordinación Académica',
+  },
+  {
+    id: 'plantilla',
+    label: 'Plantilla Docente',
+  },
+]
+
 const NAV_MAP = {
   alumno: NAV_ALUMNO,
   docente: NAV_DOCENTE,
   admin: NAV_ADMIN,
   tutor: NAV_TUTOR,
   aspirante: NAV_ASPIRANTE,
+  coordinador: NAV_COORDINADOR,
 }
 
 // ======================================================
@@ -104,128 +120,247 @@ const SECTION_TITLES = {
   inscripciones: 'Inscripciones',
   documentos: 'Documentos',
   pagos: 'Pagos',
+  plantilla: 'Plantilla Docente',
 }
 
 // ======================================================
 // VISTAS
 // ======================================================
 
-function renderView(role, activeSection, user) {
+function renderView(
+  role,
+  activeSection,
+  user
+) {
   // ── Alumno
   if (role === 'alumno') {
     if (activeSection === 'datos') {
-      return <DatosAlumno user={user} />
+      return (
+        <DatosAlumno user={user} />
+      )
     }
 
     if (activeSection === 'calif') {
-      return <CalifAlumno user={user} />
+      return (
+        <CalifAlumno user={user} />
+      )
     }
 
-    if (activeSection === 'horario') {
-      return <HorarioAlumno user={user} />
+    if (
+      activeSection === 'horario'
+    ) {
+      return (
+        <HorarioAlumno user={user} />
+      )
     }
 
-    if (activeSection === 'tramites') {
-      return <TramitesAlumno user={user} />
+    if (
+      activeSection === 'tramites'
+    ) {
+      return (
+        <TramitesAlumno user={user} />
+      )
     }
 
-    if (activeSection === 'calendario') {
+    if (
+      activeSection ===
+      'calendario'
+    ) {
       return <CalendarioAlumno />
     }
 
-    return <DatosAlumno user={user} />
+    return (
+      <DatosAlumno user={user} />
+    )
   }
 
   // ── Docente
   if (role === 'docente') {
     if (activeSection === 'datos') {
-      return <DatosDocente user={user} />
+      return (
+        <DatosDocente user={user} />
+      )
     }
 
     if (activeSection === 'calif') {
-      return <CalifDocente user={user} />
+      return (
+        <CalifDocente user={user} />
+      )
     }
 
-    if (activeSection === 'asistencia') {
-      return <AsistenciaDocente user={user} />
+    if (
+      activeSection ===
+      'asistencia'
+    ) {
+      return (
+        <AsistenciaDocente
+          user={user}
+        />
+      )
     }
 
-    if (activeSection === 'reportes') {
-      return <ReportesDocente user={user} />
+    if (
+      activeSection === 'reportes'
+    ) {
+      return (
+        <ReportesDocente
+          user={user}
+        />
+      )
     }
 
-    if (activeSection === 'avisos') {
+    if (
+      activeSection === 'avisos'
+    ) {
       return <AvisosDocente />
     }
 
-    return <DatosDocente user={user} />
+    return (
+      <DatosDocente user={user} />
+    )
   }
 
   // ── Administrador
   if (role === 'admin') {
     if (activeSection === 'datos') {
-      return <DatosAdmin user={user} />
+      return (
+        <DatosAdmin user={user} />
+      )
     }
 
-    if (activeSection === 'alumnos') {
+    if (
+      activeSection === 'alumnos'
+    ) {
       return <AlumnosAdmin />
     }
 
-    if (activeSection === 'inscripciones') {
+    if (
+      activeSection ===
+      'inscripciones'
+    ) {
       return <InscripcionesAdmin />
     }
 
-    if (activeSection === 'academico') {
+    if (
+      activeSection === 'academico'
+    ) {
       return <AcademicoAdmin />
     }
 
-    if (activeSection === 'matriculas') {
+    if (
+      activeSection ===
+      'matriculas'
+    ) {
       return <MatriculasAdmin />
     }
 
-    return <DatosAdmin user={user} />
+    return (
+      <DatosAdmin user={user} />
+    )
   }
 
   // ── Tutor
   if (role === 'tutor') {
     if (activeSection === 'datos') {
-      return <DatosTutor user={user} />
+      return (
+        <DatosTutor user={user} />
+      )
     }
 
     if (activeSection === 'calif') {
-      return <CalifTutor user={user} />
+      return (
+        <CalifTutor user={user} />
+      )
     }
 
-    if (activeSection === 'horario') {
-      return <HorarioTutor user={user} />
+    if (
+      activeSection === 'horario'
+    ) {
+      return (
+        <HorarioTutor user={user} />
+      )
     }
 
-    if (activeSection === 'tramites') {
-      return <TramitesTutor user={user} />
+    if (
+      activeSection === 'tramites'
+    ) {
+      return (
+        <TramitesTutor user={user} />
+      )
     }
 
-    if (activeSection === 'calendario') {
+    if (
+      activeSection ===
+      'calendario'
+    ) {
       return <CalendarioTutor />
     }
 
-    return <DatosTutor user={user} />
+    return (
+      <DatosTutor user={user} />
+    )
   }
 
   // ── Aspirante
   if (role === 'aspirante') {
     if (activeSection === 'datos') {
-      return <DatosAspirante user={user} />
+      return (
+        <DatosAspirante
+          user={user}
+        />
+      )
     }
 
-    if (activeSection === 'documentos') {
-      return <DocumentosAspirante user={user} />
+    if (
+      activeSection ===
+      'documentos'
+    ) {
+      return (
+        <DocumentosAspirante
+          user={user}
+        />
+      )
     }
 
-    if (activeSection === 'pagos') {
-      return <PagosAspirante user={user} />
+    if (
+      activeSection === 'pagos'
+    ) {
+      return (
+        <PagosAspirante
+          user={user}
+        />
+      )
     }
 
-    return <DatosAspirante user={user} />
+    return (
+      <DatosAspirante
+        user={user}
+      />
+    )
+  }
+
+  // ── Coordinador
+  if (role === 'coordinador') {
+    if (activeSection === 'datos') {
+      return (
+        <DatosCoordinador
+          user={user}
+        />
+      )
+    }
+
+    if (
+      activeSection ===
+      'plantilla'
+    ) {
+      return <PlantillaDocente />
+    }
+
+    return (
+      <DatosCoordinador
+        user={user}
+      />
+    )
   }
 
   return null
@@ -239,14 +374,20 @@ export default function Dashboard({
   user,
   onLogout,
 }) {
-  const [activeSection, setActiveSection] =
-    useState('datos')
+  const [
+    activeSection,
+    setActiveSection,
+  ] = useState('datos')
 
-  const [collapsed, setCollapsed] =
-    useState(false)
+  const [
+    collapsed,
+    setCollapsed,
+  ] = useState(false)
 
-  const [mobileOpen, setMobileOpen] =
-    useState(false)
+  const [
+    mobileOpen,
+    setMobileOpen,
+  ] = useState(false)
 
   const navItems =
     NAV_MAP[user.role] || []
@@ -257,15 +398,21 @@ export default function Dashboard({
     user.role === 'aspirante' &&
     activeSection === 'datos'
       ? 'Proceso de Admisión'
-      : SECTION_TITLES[
-          activeSection
-        ] || 'Dashboard'
+      : user.role ===
+            'coordinador' &&
+          activeSection ===
+            'datos'
+        ? 'Coordinación Académica'
+        : SECTION_TITLES[
+            activeSection
+          ] || 'Dashboard'
 
   return (
     <div
       className="flex h-svh overflow-hidden"
       style={{
-        background: '#F4F7FA',
+        background:
+          '#F4F7FA',
       }}
     >
       {/* Mobile overlay */}
@@ -288,6 +435,7 @@ export default function Dashboard({
       <div
         className={[
           'fixed lg:static z-50 h-full transition-transform duration-200',
+
           mobileOpen
             ? 'translate-x-0'
             : '-translate-x-full lg:translate-x-0',
@@ -297,13 +445,15 @@ export default function Dashboard({
           user={user}
           navItems={navItems}
           active={activeSection}
-          onNav={(id) => {
+          onNav={id => {
             setActiveSection(id)
             setMobileOpen(false)
           }}
           collapsed={collapsed}
           onCollapse={() =>
-            setCollapsed(!collapsed)
+            setCollapsed(
+              !collapsed
+            )
           }
           onLogout={onLogout}
         />
@@ -315,7 +465,9 @@ export default function Dashboard({
           title={topbarTitle}
           user={user}
           onMenuClick={() =>
-            setMobileOpen(!mobileOpen)
+            setMobileOpen(
+              !mobileOpen
+            )
           }
         />
 
